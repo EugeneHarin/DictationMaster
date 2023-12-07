@@ -5,13 +5,19 @@ import { lusitana } from '@/app/ui/fonts';
 import { fetchRevenue, fetchLatestInvoices, fetchCardData } from '../lib/data';
 
 export default async function Page() {
-  const revenue = await fetchRevenue(),
-        latestInvoices = await fetchLatestInvoices(),
-        { numberOfCustomers,
-          numberOfInvoices,
-          totalPaidInvoices,
-          totalPendingInvoices
-        } = await fetchCardData();
+  const data = await Promise.allSettled([
+    fetchRevenue(),
+    fetchLatestInvoices(),
+    fetchCardData()
+  ]);
+  const [ revenue, latestInvoices, { numberOfCustomers, numberOfInvoices, totalPaidInvoices, totalPendingInvoices } ] = data.map((el:any) => el.value);
+  // const revenue = await fetchRevenue(),
+  //       latestInvoices = await fetchLatestInvoices(),
+  //       { numberOfCustomers,
+  //         numberOfInvoices,
+  //         totalPaidInvoices,
+  //         totalPendingInvoices
+  //       } = await fetchCardData();
   return (
     <main>
       <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
@@ -21,8 +27,7 @@ export default async function Page() {
         <Card title="Collected" value={totalPaidInvoices} type="collected" />
         <Card title="Pending" value={totalPendingInvoices} type="pending" />
         <Card title="Total Invoices" value={numberOfInvoices} type="invoices" />
-        <Card title="Total Customers" value={numberOfCustomers} type="customers"
-        />
+        <Card title="Total Customers" value={numberOfCustomers} type="customers" />
       </div>
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
         <RevenueChart revenue={revenue}  />
