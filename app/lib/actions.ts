@@ -172,7 +172,20 @@ export async function deleteInvoice(id: string) {
   }
 }
 
-export async function deleteDictation(id: string) {}
+export async function deleteDictation(id: string) {
+  try {
+    await sql`DELETE FROM dictations WHERE id = ${id}`;
+    revalidatePath('/dashboard/dictations');
+    return { message: 'Deleted Dictation.' };
+  } catch (error: any) {
+    return {
+      errors: {
+        databaseError: error.message
+      },
+      message: 'Database Error: Failed to Delete Dictation.',
+    };
+  }
+}
 
 export async function authenticate(
   prevState: string | undefined,
