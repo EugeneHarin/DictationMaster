@@ -8,8 +8,10 @@ import {
   LatestInvoiceRaw,
   User,
   Revenue,
+  DictationsTable,
 } from './definitions';
 import { formatCurrency } from './utils';
+import { dictations } from "./placeholder-data";
 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
@@ -119,6 +121,23 @@ export async function fetchFilteredInvoices(
   }
 }
 
+export async function fetchFilteredDictations(
+  query: string,
+  currentPage: number,
+) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const dictationsData: DictationsTable[] = dictations.filter(dictation => dictation.author.includes(query));
+
+    return dictationsData;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch invoices.');
+  }
+}
+
 export async function fetchInvoicesPages(query: string) {
   noStore();
   try {
@@ -139,6 +158,12 @@ export async function fetchInvoicesPages(query: string) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch total number of invoices.');
   }
+}
+
+export async function fetchDictationsPages(query: string) {
+  noStore();
+
+  return 1;
 }
 
 export async function fetchInvoiceById(id: string) {

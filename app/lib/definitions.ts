@@ -55,6 +55,16 @@ export type InvoicesTable = {
   status: 'pending' | 'paid';
 };
 
+export type DictationsTable = {
+  id: string;
+  author: string;
+  title: string;
+  content: string
+  date: string;
+  status: 'draft' | 'published';
+  words_count: number;
+};
+
 export type CustomersTable = {
   id: string;
   name: string;

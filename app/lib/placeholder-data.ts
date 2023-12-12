@@ -1,4 +1,7 @@
 // This file contains placeholder data that you'll be replacing with real data in the Data Fetching chapter:
+
+import { DictationsTable } from "./definitions";
+
 // https://nextjs.org/learn/dashboard-app/fetching-data
 const users = [
   {
@@ -180,9 +183,58 @@ const revenue = [
   { month: 'Dec', revenue: 4800 },
 ];
 
+export const dictations: DictationsTable[] = [
+  {
+    id: '1',
+    author: 'Clara Redwood',
+    title: `Dawn's Serenity`,
+    content: `The first light of dawn casts a serene glow over the sleepy town. Streets, still damp with the night's dew, glisten under the awakening sun. Birds start their melodious chatter, welcoming the day. The world, in these precious moments, seems at peace, untouched by the hustle of daily life.`,
+    date: '2023-05-21',
+    status: 'published',
+    words_count: 51
+  },
+  {
+    id: '2',
+    author: 'Marcus J. Ellison',
+    title: 'Shadows of the Forest',
+    content: `Deep in the heart of the forest, where light filters through the dense canopy, ancient trees stand tall, their roots entwined with the earth's secrets. The air is thick with the scent of moss and damp earth, and every step is cushioned by layers of fallen leaves. In this secluded haven, time moves to the rhythm of nature's whispers.`,
+    date: '2023-06-10',
+    status: 'draft',
+    words_count: 58,
+  },
+  {
+    id: '3',
+    author: 'Evelynne Arden',
+    title: 'Twilight Whispers',
+    content: `As twilight descends, the horizon is painted with strokes of pink and orange, casting a spellbinding hue over the city's skyline. Streets, once teeming with the day's hustle, now surrender to the tranquil embrace of the evening. Windows light up, one by one, mirroring the stars emerging in the dusky sky. The air, filled with the fragrance of blooming nightflowers, carries the whispers of the night. These whispers speak of rest and dreams, of stars and silent wishes. Shadows stretch across the pavements, dancing to the rhythm of the gentle night breeze. In the quiet corners of the city, cats prowl and owls watch, guardians of the nocturnal world. The world, beneath the twilight sky, is a canvas of peace and mystery, inviting souls to pause and embrace the beauty of the transitioning time.`,
+    date: '2023-07-07',
+    status: 'published',
+    words_count: 134,
+  },
+  {
+    id: '4',
+    author: 'Liam T. Hawthorne',
+    title: 'Reflections on a Rainy Day',
+    content: `Raindrops patter against the window, each tracing its own path on the glass. Outside, the world is a blur of greys and greens, a living watercolor. Inside, the rain's symphony is soothing, a backdrop to moments of reflection. The sound evokes memories, thoughts wandering back to days filled with laughter and whispers of love. The rain, unrelenting in its melody, creates a cocoon of serenity, a reminder of nature's gentle rhythms and life's simple joys.`,
+    date: '2023-08-22',
+    status: 'published',
+    words_count: 75,
+  },
+  {
+    id: '5',
+    author: 'John Doe',
+    title: 'The Dance of the Fireflies',
+    content: `On warm summer evenings, when the sky wears a cloak of twilight, the meadows transform into a stage for the dance of fireflies. These tiny luminous beings flicker and swirl in the darkness, orchestrating a ballet of light. Each flash is a moment of brilliance, a silent tale of nature's mystery and wonder. This spectacle, a timeless performance, captivates the hearts of those who watch, reminding them of the enchanting stories woven in the tapestry of the night. The air, warm and fragrant with the scent of summer blooms, enhances the magic. The fireflies, in their fleeting luminescence, speak of life's transient beauty, urging us to cherish each glowing moment.`,
+    date: '2023-09-05',
+    status: 'draft',
+    words_count: 110,
+  },
+];
+
 module.exports = {
   users,
   customers,
   invoices,
+  dictations,
   revenue,
 };
