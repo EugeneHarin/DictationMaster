@@ -4,12 +4,14 @@ const {
   customers,
   revenue,
   users,
+  dictations
 } = require('../app/lib/placeholder-data.js');
 const bcrypt = require('bcrypt');
 
 async function seedUsers(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+    await client.sql`DROP TABLE IF EXISTS users`;
     // Create the "users" table if it doesn't exist
     const createTable = await client.sql`
       CREATE TABLE IF NOT EXISTS users (
@@ -27,10 +29,10 @@ async function seedUsers(client) {
       users.map(async (user) => {
         const hashedPassword = await bcrypt.hash(user.password, 10);
         return client.sql`
-        INSERT INTO users (id, name, email, password)
-        VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
-        ON CONFLICT (id) DO NOTHING;
-      `;
+          INSERT INTO users (id, name, email, password)
+          VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
+          ON CONFLICT (id) DO NOTHING;
+        `;
       }),
     );
 
@@ -50,16 +52,17 @@ async function seedInvoices(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
+    await client.sql`DROP TABLE IF EXISTS invoices`;
     // Create the "invoices" table if it doesn't exist
     const createTable = await client.sql`
-    CREATE TABLE IF NOT EXISTS invoices (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    customer_id UUID NOT NULL,
-    amount INT NOT NULL,
-    status VARCHAR(255) NOT NULL,
-    date DATE NOT NULL
-  );
-`;
+      CREATE TABLE IF NOT EXISTS invoices (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        customer_id UUID NOT NULL,
+        amount INT NOT NULL,
+        status VARCHAR(255) NOT NULL,
+        date DATE NOT NULL
+      );
+    `;
 
     console.log(`Created "invoices" table`);
 
@@ -90,6 +93,7 @@ async function seedCustomers(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
+    await client.sql`DROP TABLE IF EXISTS customers`;
     // Create the "customers" table if it doesn't exist
     const createTable = await client.sql`
       CREATE TABLE IF NOT EXISTS customers (
@@ -106,10 +110,10 @@ async function seedCustomers(client) {
     const insertedCustomers = await Promise.all(
       customers.map(
         (customer) => client.sql`
-        INSERT INTO customers (id, name, email, image_url)
-        VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.image_url})
-        ON CONFLICT (id) DO NOTHING;
-      `,
+          INSERT INTO customers (id, name, email, image_url)
+          VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.image_url})
+          ON CONFLICT (id) DO NOTHING;
+        `,
       ),
     );
 
@@ -127,6 +131,7 @@ async function seedCustomers(client) {
 
 async function seedRevenue(client) {
   try {
+    await client.sql`DROP TABLE IF EXISTS revenue`;
     // Create the "revenue" table if it doesn't exist
     const createTable = await client.sql`
       CREATE TABLE IF NOT EXISTS revenue (
@@ -160,6 +165,49 @@ async function seedRevenue(client) {
   }
 }
 
+async function seedDictations(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+
+    await client.sql`DROP TABLE IF EXISTS dictations`;
+    // Create the "dictations" table if it doesn't exist
+    const createTable = await client.sql`
+        CREATE TABLE IF NOT EXISTS dictations (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        author VARCHAR(255) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        content VARCHAR(3000) NOT NULL,
+        words_count INT NOT NULL,
+        status VARCHAR(255) NOT NULL,
+        date DATE NOT NULL
+      );
+    `;
+
+    console.log(`Created "dictations" table`);
+
+    // Insert data into the "dictations" table
+    const insertedDictations = await Promise.all(
+      dictations.map(
+        (dictation) => client.sql`
+        INSERT INTO dictations (author, title, content, words_count, status, date)
+        VALUES (${dictation.author}, ${dictation.title}, ${dictation.content}, ${dictation.words_count}, ${dictation.status}, ${dictation.date})
+        ON CONFLICT (id) DO NOTHING;
+      `,
+      ),
+    );
+
+    console.log(`Seeded ${insertedDictations.length} dictations`);
+
+    return {
+      createTable,
+      dictations: insertedDictations,
+    };
+  } catch (error) {
+    console.error('Error seeding dictations:', error);
+    throw error;
+  }
+}
+
 async function main() {
   const client = await db.connect();
 
@@ -167,6 +215,7 @@ async function main() {
   await seedCustomers(client);
   await seedInvoices(client);
   await seedRevenue(client);
+  await seedDictations(client);
 
   await client.end();
 }

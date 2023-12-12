@@ -11,7 +11,9 @@ import {
   DictationsTable,
 } from './definitions';
 import { formatCurrency } from './utils';
-import { dictations } from "./placeholder-data";
+
+const INVOICES_PER_PAGE = 6;
+const DICTATIONS_PER_PAGE = 6;
 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
@@ -84,13 +86,12 @@ export async function fetchCardData() {
   }
 }
 
-const ITEMS_PER_PAGE = 6;
 export async function fetchFilteredInvoices(
   query: string,
   currentPage: number,
 ) {
   noStore();
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const offset = (currentPage - 1) * INVOICES_PER_PAGE;
 
   try {
     const invoices = await sql<InvoicesTable>`
@@ -111,27 +112,10 @@ export async function fetchFilteredInvoices(
         invoices.date::text ILIKE ${`%${query}%`} OR
         invoices.status ILIKE ${`%${query}%`}
       ORDER BY invoices.date DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+      LIMIT ${INVOICES_PER_PAGE} OFFSET ${offset}
     `;
 
     return invoices.rows;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoices.');
-  }
-}
-
-export async function fetchFilteredDictations(
-  query: string,
-  currentPage: number,
-) {
-  noStore();
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-
-  try {
-    const dictationsData: DictationsTable[] = dictations.filter(dictation => dictation.author.includes(query));
-
-    return dictationsData;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch invoices.');
@@ -142,17 +126,17 @@ export async function fetchInvoicesPages(query: string) {
   noStore();
   try {
     const count = await sql`SELECT COUNT(*)
-    FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
-    WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
-      invoices.amount::text ILIKE ${`%${query}%`} OR
-      invoices.date::text ILIKE ${`%${query}%`} OR
-      invoices.status ILIKE ${`%${query}%`}
-  `;
+      FROM invoices
+      JOIN customers ON invoices.customer_id = customers.id
+      WHERE
+        customers.name ILIKE ${`%${query}%`} OR
+        customers.email ILIKE ${`%${query}%`} OR
+        invoices.amount::text ILIKE ${`%${query}%`} OR
+        invoices.date::text ILIKE ${`%${query}%`} OR
+        invoices.status ILIKE ${`%${query}%`}
+    `;
 
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(Number(count.rows[0].count) / INVOICES_PER_PAGE);
     return totalPages;
   } catch (error) {
     console.error('Database Error:', error);
@@ -160,10 +144,58 @@ export async function fetchInvoicesPages(query: string) {
   }
 }
 
+export async function fetchFilteredDictations(
+  query: string,
+  currentPage: number,
+) {
+  noStore();
+  const offset = (currentPage - 1) * DICTATIONS_PER_PAGE;
+
+  try {
+    const dictations = await sql<DictationsTable>`
+      SELECT
+        dictations.id,
+        dictations.author,
+        dictations.title,
+        dictations.content,
+        dictations.words_count,
+        dictations.status,
+        dictations.date
+      FROM dictations
+      WHERE
+        dictations.author ILIKE ${`%${query}%`} OR
+        dictations.title ILIKE ${`%${query}%`} OR
+        dictations.words_count::text ILIKE ${`%${query}%`} OR
+        dictations.status ILIKE ${`%${query}%`}
+      ORDER BY dictations.date DESC
+      LIMIT ${DICTATIONS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return dictations.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch dictations.');
+  }
+}
+
 export async function fetchDictationsPages(query: string) {
   noStore();
-
-  return 1;
+  try {
+    const count = await sql`
+      SELECT COUNT(*)
+      FROM dictations
+      WHERE
+        dictations.author ILIKE ${`%${query}%`} OR
+        dictations.title ILIKE ${`%${query}%`} OR
+        dictations.words_count::text ILIKE ${`%${query}%`} OR
+        dictations.status ILIKE ${`%${query}%`}
+    `;
+    const totalPages = Math.ceil(Number(count.rows[0].count) / DICTATIONS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of dictations');
+  }
 }
 
 export async function fetchInvoiceById(id: string) {
