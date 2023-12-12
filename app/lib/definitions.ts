@@ -62,9 +62,9 @@ export type DictationsTable = {
   name: string;
   title: string;
   content: string
-  date: string;
-  status: 'draft' | 'published';
   words_count: number;
+  status: 'draft' | 'published';
+  date: string;
 };
 
 export type CustomersTable = {
@@ -87,7 +87,7 @@ export type FormattedCustomersTable = {
   total_paid: string;
 };
 
-export type CustomerField = {
+export type TeacherField = {
   id: string;
   name: string;
 };
@@ -97,4 +97,12 @@ export type InvoiceForm = {
   customer_id: string;
   amount: number;
   status: 'pending' | 'paid';
+};
+
+export type DictationForm = {
+  id: string;
+  teacher_id: string;
+  title: string;
+  content: string;
+  status: 'draft' | 'published';
 };

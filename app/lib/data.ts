@@ -1,7 +1,6 @@
 import { sql } from '@vercel/postgres';
 import { unstable_noStore as noStore } from 'next/cache';
 import {
-  CustomerField,
   CustomersTable,
   InvoiceForm,
   InvoicesTable,
@@ -9,6 +8,8 @@ import {
   User,
   Revenue,
   DictationsTable,
+  DictationForm,
+  TeacherField,
 } from './definitions';
 import { formatCurrency } from './utils';
 
@@ -226,22 +227,63 @@ export async function fetchInvoiceById(id: string) {
   }
 }
 
-export async function fetchCustomers() {
+export async function fetchDictationById(id: string) {
   noStore();
   try {
-    const data = await sql<CustomerField>`
+    const dictation = await sql<DictationForm>`
+      SELECT
+        dictations.id,
+        dictations.teacher_id,
+        dictations.title,
+        dictations.content,
+        dictations.status
+      FROM dictations
+      WHERE dictations.id = ${id};
+    `;
+
+    return dictation.rows[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch dictation.');
+  }
+}
+
+export async function fetchCustomers() {
+  noStore();
+  return;
+  // try {
+  //   const data = await sql<CustomerField>`
+  //     SELECT
+  //       id,
+  //       name
+  //     FROM customers
+  //     ORDER BY name ASC
+  //   `;
+
+  //   const customers = data.rows;
+  //   return customers;
+  // } catch (err) {
+  //   console.error('Database Error:', err);
+  //   throw new Error('Failed to fetch all customers.');
+  // }
+}
+
+export async function fetchTeachers() {
+  noStore();
+  try {
+    const data = await sql<TeacherField>`
       SELECT
         id,
         name
-      FROM customers
+      FROM teachers
       ORDER BY name ASC
     `;
 
-    const customers = data.rows;
-    return customers;
+    const teachers = data.rows;
+    return teachers;
   } catch (err) {
     console.error('Database Error:', err);
-    throw new Error('Failed to fetch all customers.');
+    throw new Error('Failed to fetch all teachers.');
   }
 }
 
