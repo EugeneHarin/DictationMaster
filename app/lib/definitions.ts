@@ -57,7 +57,9 @@ export type InvoicesTable = {
 
 export type DictationsTable = {
   id: string;
-  author: string;
+  teacher_id: string;
+  image_url: string;
+  name: string;
   title: string;
   content: string
   date: string;

@@ -155,15 +155,17 @@ export async function fetchFilteredDictations(
     const dictations = await sql<DictationsTable>`
       SELECT
         dictations.id,
-        dictations.author,
         dictations.title,
         dictations.content,
         dictations.words_count,
         dictations.status,
-        dictations.date
+        dictations.date,
+        teachers.name,
+        teachers.image_url
       FROM dictations
+      JOIN teachers ON dictations.teacher_id = teachers.id
       WHERE
-        dictations.author ILIKE ${`%${query}%`} OR
+        teachers.name ILIKE ${`%${query}%`} OR
         dictations.title ILIKE ${`%${query}%`} OR
         dictations.words_count::text ILIKE ${`%${query}%`} OR
         dictations.status ILIKE ${`%${query}%`}
@@ -183,9 +185,9 @@ export async function fetchDictationsPages(query: string) {
   try {
     const count = await sql`
       SELECT COUNT(*)
-      FROM dictations
+      FROM dictations JOIN teachers ON teachers.id = dictations.teacher_id
       WHERE
-        dictations.author ILIKE ${`%${query}%`} OR
+        teachers.name ILIKE ${`%${query}%`} OR
         dictations.title ILIKE ${`%${query}%`} OR
         dictations.words_count::text ILIKE ${`%${query}%`} OR
         dictations.status ILIKE ${`%${query}%`}
