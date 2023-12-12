@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { UpdateDictation, DeleteDictation } from '@/app/ui/dictations/buttons';
+import { UpdateDictation, DeleteDictation, TestDictation } from '@/app/ui/dictations/buttons';
 import DictationStatus from '@/app/ui/dictations/status';
 import { formatDateToLocal, } from '@/app/lib/utils';
 import { fetchFilteredDictations } from '@/app/lib/data';
@@ -109,6 +109,7 @@ export default async function DictationsTable({
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
+                      <TestDictation id={dictation.id} />
                       <UpdateDictation id={dictation.id} />
                       <DeleteDictation id={dictation.id} />
                     </div>

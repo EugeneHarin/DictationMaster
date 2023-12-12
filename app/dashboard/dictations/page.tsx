@@ -7,6 +7,7 @@ import { DictationsTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
 import { fetchDictationsPages } from '@/app/lib/data';
 import { Metadata } from 'next';
+import Speech from 'react-speech';
 
 export const metadata: Metadata = {
   title: 'Dictations',

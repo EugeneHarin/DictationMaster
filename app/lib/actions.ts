@@ -25,11 +25,12 @@ const FormSchema = z.object({
   date: z.string(),
 });
 
-const CreateInvoice = FormSchema.omit({ id: true, date: true });
-const UpdateInvoice = FormSchema.omit({ id: true, date: true });
-
 const CreateDictation = FormSchema.omit({ id: true, date: true });
 const UpdateDictation = FormSchema.omit({ id: true, date: true });
+
+export async function createDictation() {
+  return;
+}
 
 export type State = {
   errors?: {
@@ -82,21 +83,6 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
 
   revalidatePath('/dashboard/dictations');
   redirect('/dashboard/dictations');
-}
-
-export async function deleteInvoice(id: string) {
-  try {
-    await sql`DELETE FROM invoices WHERE id = ${id}`;
-    revalidatePath('/dashboard/invoices');
-    return { message: 'Deleted Invoice.' };
-  } catch (error: any) {
-    return {
-      errors: {
-        databaseError: error.message
-      },
-      message: 'Database Error: Failed to Delete Invoice.',
-    };
-  }
 }
 
 export async function deleteDictation(id: string) {

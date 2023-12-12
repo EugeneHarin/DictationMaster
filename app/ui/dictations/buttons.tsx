@@ -1,4 +1,4 @@
-import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { deleteDictation } from '@/app/lib/actions'
 
@@ -10,6 +10,17 @@ export function CreateDictation() {
     >
       <span className="hidden md:block">Create Dictation</span>{' '}
       <PlusIcon className="h-5 md:ml-4" />
+    </Link>
+  );
+}
+
+export function TestDictation({ id }: { id: string }) {
+  return (
+    <Link
+      href={`/dashboard/dictations/${id}/test`}
+      className="rounded-md border p-2 hover:bg-gray-100"
+    >
+      <EyeIcon className="w-5" />
     </Link>
   );
 }
