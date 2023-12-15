@@ -1,19 +1,26 @@
-'use client'
-
+// Import necessary hooks and components
+import React, { useState } from 'react';
+import { Button } from "../button";
+import { deleteAllAudioFilesFromGCS, getAudioFileUrl } from "@/app/lib/google-cloud-actions";
+import { notFound } from "next/navigation";
 import { DictationForm } from "@/app/lib/definitions";
-import dynamic from "next/dynamic";
 
-// Dynamically import the Speech component with SSR disabled
-const Speech: any = dynamic(() => import('react-speech'), { ssr: false });
+interface DictationFormProps {
+  dictation: DictationForm;
+}
 
-export default function TestDictationForm({ dictation }: { dictation: DictationForm } ) {
+export default async function TestDictationForm({ dictation }: DictationFormProps) {
+  if (!dictation?.id) notFound();
+  const audioFileUrl = await getAudioFileUrl(dictation);
+
   return (
     <div>
       <div>
-        <Speech
-          text="I have altered my voice"
-          voice="Google UK English Female" />
+        {dictation.content}
       </div>
+      <audio controls>
+        <source src={audioFileUrl} type="audio/mp3" />
+      </audio>
     </div>
   );
-};
+}

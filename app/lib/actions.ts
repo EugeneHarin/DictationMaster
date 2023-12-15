@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import { ErrorCallback } from 'typescript';
 import { AuthError } from 'next-auth';
 import { signIn } from '@/auth';
+import { deleteAudioFromGCS } from "./google-cloud-actions";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -88,6 +89,7 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
 export async function deleteDictation(id: string) {
   try {
     await sql`DELETE FROM dictations WHERE id = ${id}`;
+    await deleteAudioFromGCS(id);
     revalidatePath('/dashboard/dictations');
     return { message: 'Deleted Dictation.' };
   } catch (error: any) {
