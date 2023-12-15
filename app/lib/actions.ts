@@ -63,7 +63,7 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
   const wordsCount = content.match(/\b\w+\b/g)?.length || 0;
 
   try {
-    await sql`
+    sql`
       UPDATE dictations
       SET teacher_id = ${teacherId},
       title = ${title},
