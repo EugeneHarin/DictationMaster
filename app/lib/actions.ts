@@ -4,7 +4,6 @@ import z from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { ErrorCallback } from 'typescript';
 import { AuthError } from 'next-auth';
 import { signIn } from '@/auth';
 import { deleteAudioFromGCS } from "./google-cloud-actions";
@@ -81,6 +80,8 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
       message: 'Database Error: Failed to Update Dictation.',
     };
   }
+
+  deleteAudioFromGCS(id);
 
   revalidatePath('/dashboard/dictations');
   redirect('/dashboard/dictations');
