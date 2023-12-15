@@ -2,7 +2,7 @@
 
 // Initialize Google Cloud Storage Bucket
 import { Storage } from '@google-cloud/storage'
-import textToSpeech, { protos } from '@google-cloud/text-to-speech';
+import { TextToSpeechClient, protos } from '@google-cloud/text-to-speech';
 import { DictationForm } from "./definitions";
 
 // GCS - Google Cloud Storage
@@ -12,9 +12,8 @@ if (!googleApplicationCredentialsBase64) throw new Error('Error getting Google A
 if (!bucketName) throw new Error('Error getting Google Storage bucket Name from .env');
 
 const serviceAccountKey = JSON.parse(Buffer.from(googleApplicationCredentialsBase64, 'base64').toString('ascii'));
-const storage = new Storage({
-  credentials: serviceAccountKey
-});
+const storage = new Storage({ credentials: serviceAccountKey });
+const TTSClient = new TextToSpeechClient({ credentials: serviceAccountKey });
 const bucket = storage.bucket(bucketName);
 
 
@@ -73,8 +72,6 @@ async function getCachedSignedUrl(id: string) {
 
 async function convertTextToSpeech(text: string) {
   try {
-    const client = new textToSpeech.TextToSpeechClient();
-
     const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
       input: {
         text: text
@@ -88,7 +85,7 @@ async function convertTextToSpeech(text: string) {
       },
     };
 
-    const [response] = await client.synthesizeSpeech(request);
+    const [response] = await TTSClient.synthesizeSpeech(request);
     if (response.audioContent instanceof Uint8Array) {
       return Buffer.from(response.audioContent);
     } else {
