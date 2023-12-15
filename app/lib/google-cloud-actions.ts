@@ -6,12 +6,17 @@ import textToSpeech, { protos } from '@google-cloud/text-to-speech';
 import { DictationForm } from "./definitions";
 
 // GCS - Google Cloud Storage
-const googleApplicationCredentials = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+const googleApplicationCredentialsBase64 = process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64;
 const bucketName = process.env.GCS_BUCKET_NAME;
-if (!googleApplicationCredentials) throw new Error('Error getting Google Application Credentials from .env');
+if (!googleApplicationCredentialsBase64) throw new Error('Error getting Google Application Credentials from .env');
 if (!bucketName) throw new Error('Error getting Google Storage bucket Name from .env');
-const storage = new Storage({ keyFilename: googleApplicationCredentials });
+
+const serviceAccountKey = JSON.parse(Buffer.from(googleApplicationCredentialsBase64, 'base64').toString('ascii'));
+const storage = new Storage({
+  credentials: serviceAccountKey
+});
 const bucket = storage.bucket(bucketName);
+
 
 type CacheEntry = {
   url: string | undefined;
