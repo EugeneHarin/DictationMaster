@@ -3,12 +3,14 @@ import Breadcrumbs from '@/app/ui/dictations/breadcrumbs';
 import { fetchTeachers, fetchDictationById } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import { Button } from "@/app/ui/button";
 
 export const metadata: Metadata = {
   title: 'Edit Dictation',
 };
 
 export default async function Page({ params }: { params: { id: string } }) {
+
   const id = params.id,
     [ dictation, teachers ] = await Promise.all([
       fetchDictationById(id),

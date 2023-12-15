@@ -1,7 +1,6 @@
 // Import necessary hooks and components
-import React, { useState } from 'react';
-import { Button } from "../button";
-import { deleteAllAudioFilesFromGCS, getAudioFileUrl } from "@/app/lib/google-cloud-actions";
+import React from 'react';
+import { getAudioFileUrl } from "@/app/lib/google-cloud-actions";
 import { notFound } from "next/navigation";
 import { DictationForm } from "@/app/lib/definitions";
 
