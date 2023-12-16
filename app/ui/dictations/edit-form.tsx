@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { Button } from '@/app/ui/button';
 import { updateDictation } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 export default function EditDictationForm({
   dictation,
@@ -178,13 +178,13 @@ export default function EditDictationForm({
               ))}
           </div>
         </fieldset>
-        <div id="form-errors" aria-live="polite" aria-atomic="true">
-          {errorsCount > 0 && (
-            <p className="mt-2 text-sm text-red-500">
-              {state?.message}
-            </p>
-          )}
-        </div>
+      </div>
+      <div id="form-errors" aria-live="polite" aria-atomic="true">
+        {errorsCount > 0 && (
+          <p className="mt-2 text-sm text-red-500">
+            {state?.message}
+          </p>
+        )}
       </div>
       <div className="mt-6 flex justify-end gap-4">
         <Link

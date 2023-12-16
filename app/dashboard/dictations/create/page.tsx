@@ -4,32 +4,26 @@ import { fetchTeachers } from '@/app/lib/data';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Create Invoice',
+  title: 'Create Dictation',
 };
+
 
 export default async function Page() {
-  return(
-    <div>Create Dictation</div>
+  const teachers = await fetchTeachers();
+
+  return (
+    <main>
+      <Breadcrumbs
+        breadcrumbs={[
+          { label: 'Dictation', href: '/dashboard/dictations' },
+          {
+            label: 'Create Dictation',
+            href: '/dashboard/dictations/create',
+            active: true,
+          },
+        ]}
+      />
+      <Form teachers={teachers} />
+    </main>
   );
-};
-
-
-// export default async function Page() {
-//   const teachers = await fetchTeachers();
-
-//   return (
-//     <main>
-//       <Breadcrumbs
-//         breadcrumbs={[
-//           { label: 'Dictation', href: '/dashboard/dictations' },
-//           {
-//             label: 'Create Invoice',
-//             href: '/dashboard/dictations/create',
-//             active: true,
-//           },
-//         ]}
-//       />
-//       <Form customers={teachers} />
-//     </main>
-//   );
-// }
+}

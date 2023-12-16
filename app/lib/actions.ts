@@ -10,27 +10,30 @@ import { deleteAudioFromGCS } from "./google-cloud-actions";
 
 const FormSchema = z.object({
   id: z.string(),
-  teacherId: z.string({
-    invalid_type_error: 'Please select a teacher.',
-  }),
-  title: z.string({
-    required_error: 'Dictation title can not be empty.',
-  }).min(1),
-  content: z.string({
-    required_error: 'Dictation content can not be empty.',
-  }).min(10),
-  status: z.enum(['draft', 'published'], {
-    invalid_type_error: 'Please select an dictation status.',
-  }),
-  date: z.string(),
+  teacherId: z
+    .string({
+      invalid_type_error: 'Please select a teacher.',
+    })
+    .trim(),
+  title: z
+    .string()
+    .trim()
+    .min(1, 'Dictation title can not be empty.'),
+  content: z
+    .string()
+    .trim()
+    .min(1, 'Dictation content can not be empty.')
+    .min(50, 'Dictation content should be at least 50 characters long.'),
+  status: z
+    .enum(['draft', 'published'], {
+      invalid_type_error: 'Please select an dictation status.',
+    }),
+  date: z
+    .string(),
 });
 
 const CreateDictation = FormSchema.omit({ id: true, date: true });
 const UpdateDictation = FormSchema.omit({ id: true, date: true });
-
-export async function createDictation() {
-  return;
-}
 
 export type State = {
   errors?: {
@@ -43,9 +46,8 @@ export type State = {
   message?: string | null;
 };
 
-export async function updateDictation(id: string, prevState: State, formData: FormData) {
-
-  const validatedFields = UpdateDictation.safeParse({
+export async function createDictation(prevState: State, formData: FormData) {
+  const validatedFields = CreateDictation.safeParse({
     teacherId: formData.get('teacherId'),
     title: formData.get('title'),
     content: formData.get('content'),
@@ -55,10 +57,46 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to Update Dictation.',
+      message: 'Missing Fields. Failed to Create Dictation',
+    }
+  }
+
+  const { teacherId, title, content, status } = validatedFields.data;
+  const wordsCount = content.match(/\b\w+\b/g)?.length || 0;
+  const date = new Date().toISOString();
+
+  try {
+    sql`
+      INSERT INTO dictations(teacher_id, title, content, status, words_count, date)
+      VALUES (${teacherId},${title},${content},${status},${wordsCount},${date})
+    `;
+  } catch (error: any) {
+    return {
+      errors: {
+        databaseError: error.message
+      },
+      message: 'Database Error: Failed to Create Dictation.',
     };
   }
 
+  revalidatePath('/dashboard/dictations');
+  redirect('/dashboard/dictations');
+}
+
+export async function updateDictation(id: string, prevState: State, formData: FormData) {
+  const validatedFields = UpdateDictation.safeParse({
+    teacherId: formData?.get('teacherId'),
+    title: formData?.get('title'),
+    content: formData?.get('content'),
+    status: formData?.get('status'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Update Dictation.',
+    };
+  }
   const { teacherId, title, content, status } = validatedFields.data;
   const wordsCount = content.match(/\b\w+\b/g)?.length || 0;
 
