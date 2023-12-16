@@ -8,7 +8,7 @@ interface DictationFormProps {
   dictation: DictationForm;
 }
 
-export default async function TestDictationForm({ dictation }: DictationFormProps) {
+export default async function ViewDictationForm({ dictation }: DictationFormProps) {
   if (!dictation?.id) notFound();
   const audioFileUrl = await getAudioFileUrl(dictation);
 

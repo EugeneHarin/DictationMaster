@@ -3,7 +3,7 @@ const {
   teachers,
   users,
   dictations
-} = require('../app/lib/placeholder-data.js');
+} = require('../app/lib/database-placeholder-data.js');
 const bcrypt = require('bcrypt');
 
 async function seedUsers(client) {

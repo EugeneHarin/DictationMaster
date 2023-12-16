@@ -1,9 +1,9 @@
-import Form from '@/app/ui/dictations/edit-form';
-import Breadcrumbs from '@/app/ui/dictations/breadcrumbs';
-import { fetchTeachers, fetchDictationById } from '@/app/lib/data';
+import Form from '@/app/ui/dictations/EditDictationForm';
+import Breadcrumbs from '@/app/ui/dictations/Breadcrumbs';
+import { fetchAllTeachers } from "@/app/lib/teacher-functions/fetch";
+import { fetchDictationById } from '@/app/lib/dictation-functions/fetch';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { Button } from "@/app/ui/button";
 
 export const metadata: Metadata = {
   title: 'Edit Dictation',
@@ -14,7 +14,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   const id = params.id,
     [ dictation, teachers ] = await Promise.all([
       fetchDictationById(id),
-      fetchTeachers(),
+      fetchAllTeachers(),
     ]);
 
     if (!dictation) {

@@ -1,11 +1,11 @@
 import Pagination from '@/app/ui/dictations/pagination';
 import Search from '@/app/ui/search';
-import Table from '@/app/ui/dictations/table';
+import Table from '@/app/ui/dictations/DictationsTable';
 import { CreateDictation } from '@/app/ui/dictations/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { DictationsTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchDictationsPages } from '@/app/lib/data';
+import { fetchDictationsPages } from '@/app/lib/dictation-functions/fetch';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

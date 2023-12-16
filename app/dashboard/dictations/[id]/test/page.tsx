@@ -1,6 +1,6 @@
-import { fetchDictationById } from "@/app/lib/data";
-import Breadcrumbs from "@/app/ui/dictations/breadcrumbs";
-import TestDictationForm from "@/app/ui/dictations/test-form";
+import { fetchDictationById } from "@/app/lib/dictation-functions/fetch";
+import Breadcrumbs from "@/app/ui/dictations/Breadcrumbs";
+import ViewDictationForm from "@/app/ui/dictations/test-form";
 import LoadingBox from "@/app/ui/loading-box";
 import { Metadata } from "next";
 import { Suspense } from "react";
@@ -26,7 +26,7 @@ export default async function page({ params }: { params: { id: string } }) {
         ]}
       />
       <Suspense key={id} fallback={<LoadingBox />}>
-        <TestDictationForm dictation={dictation} />
+        <ViewDictationForm dictation={dictation} />
       </Suspense>
     </main>
   );

@@ -1,14 +1,22 @@
-'use server';
+'use server'
 
 import z from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { AuthError } from 'next-auth';
-import { signIn } from '@/auth';
-import { deleteAudioFromGCS } from "./google-cloud-actions";
-import { DictationsTable } from "./definitions";
-import { deleteCachedAudioUrl } from "./cache";
+import { deleteAudioFromGCS } from "../google-cloud-actions";
+import { deleteCachedAudioUrl } from "../cache";
+
+export type State = {
+  errors?: {
+    teacherId?: string[];
+    title?: string[];
+    content?: string[];
+    status?: string[];
+    databaseError?: string[];
+  };
+  message?: string | null;
+};
 
 const FormSchema = z.object({
   id: z.string(),
@@ -36,17 +44,6 @@ const FormSchema = z.object({
 
 const CreateDictation = FormSchema.omit({ id: true, date: true });
 const UpdateDictation = FormSchema.omit({ id: true, date: true });
-
-export type State = {
-  errors?: {
-    teacherId?: string[];
-    title?: string[];
-    content?: string[];
-    status?: string[];
-    databaseError?: string[];
-  };
-  message?: string | null;
-};
 
 export async function createDictation(prevState: State, formData: FormData) {
   const validatedFields = CreateDictation.safeParse({
@@ -85,6 +82,31 @@ export async function createDictation(prevState: State, formData: FormData) {
   redirect('/dashboard/dictations');
 }
 
+export async function requestDictation(id: string, columnsArray: Array<string> | null = null) {
+  // Ensure that each column name is a valid identifier
+  const validColumns = columnsArray?.every(column => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column));
+  const columns = (validColumns && columnsArray && columnsArray.length) ? columnsArray.join(', ') : '*';
+
+  try {
+    const query = sql.query(`
+      SELECT ${columns}
+      FROM public.dictations
+      WHERE dictations.id = '${id}'
+    `);
+    const data = await query;
+    return data.rows[0];
+
+  } catch (error: any) {
+    console.error(error);
+    return {
+      errors: {
+        databaseError: error.message
+      },
+      message: 'Database Error: Failed to Get Dictation Data.',
+    };
+  }
+}
+
 export async function updateDictation(id: string, prevState: State, formData: FormData) {
   const validatedFields = UpdateDictation.safeParse({
     teacherId: formData?.get('teacherId'),
@@ -104,24 +126,6 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
   let oldDictationContent = null;
 
   try {
-    // Get old Dictation Content value to decide if we need to replace the cached Audio file
-    const data = await sql<Pick<DictationsTable, 'content'>>`
-      SELECT content
-      FROM dictations
-      WHERE dictations.id = ${id}
-    `
-    oldDictationContent = data.rows[0].content;
-
-  } catch (error: any) {
-    return {
-      errors: {
-        databaseError: error.message
-      },
-      message: 'Database Error: Failed to Get Dictation Data.',
-    };
-  }
-
-  try {
     await sql`
       UPDATE dictations
       SET teacher_id = ${teacherId},
@@ -139,6 +143,8 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
       message: 'Database Error: Failed to Update Dictation.',
     };
   }
+
+  oldDictationContent = await requestDictation(id, ['content']);
 
   if (oldDictationContent !== content) {
     deleteAudioFromGCS(id);
@@ -163,24 +169,5 @@ export async function deleteDictation(id: string) {
       },
       message: 'Database Error: Failed to Delete Dictation.',
     };
-  }
-}
-
-export async function authenticate(
-  prevState: string | undefined,
-  formData: FormData,
-) {
-  try {
-    await signIn('credentials', formData);
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case 'CredentialsSignin':
-          return 'Invalid credentials.';
-        default:
-          return 'Something went wrong.';
-      }
-    }
-    throw error;
   }
 }

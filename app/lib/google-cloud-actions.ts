@@ -17,12 +17,6 @@ const storage = new Storage({ credentials: serviceAccountKey });
 const TTSClient = new TextToSpeechClient({ credentials: serviceAccountKey });
 const bucket = storage.bucket(bucketName);
 
-type CacheEntry = {
-  url: string | undefined;
-  timestamp: number;
-};
-const cache: Record<string, CacheEntry> = {};
-
 const serverAudioFilesFolder = 'audio-files';
 
 async function getSignedUrlFromGCS(id: string) {
@@ -34,7 +28,7 @@ async function getSignedUrlFromGCS(id: string) {
     const [fileExists] = await file.exists();
 
     if (fileExists) {
-      console.log(`File found in GCS for id: ${id}, generating new signed URL...`);
+      // console.log(`File found in GCS for id: ${id}, generating new signed URL...`);
       const [url] = await file.getSignedUrl({
         version: 'v4',
         action: 'read',
@@ -44,7 +38,7 @@ async function getSignedUrlFromGCS(id: string) {
       return url;
     }
 
-    console.log(`File not found in GCS for id: ${id}`);
+    // console.log(`File not found in GCS for id: ${id}`);
 
     return undefined;
   } catch (error: any) {
@@ -58,12 +52,12 @@ async function getCachedSignedUrl(id: string) {
 
   // Check if we have a cached URL for this id and it's less than 1 hour old
   if (audioCacheEntry?.audio_file_url && audioCacheEntry.audio_file_exp_date && ( Date.now() < Date.parse(audioCacheEntry.audio_file_exp_date) )) {
-    console.log(`Cached URL found in DB for id: ${id}`);
+    // console.log(`Cached URL found in DB for id: ${id}`);
     return audioCacheEntry.audio_file_url;
   }
 
   // Generate a new signed URL
-  console.log(`Cached URL not found for id: ${id}, generating a new one...`);
+  // console.log(`Cached URL not found for id: ${id}, generating a new one...`);
   const newUrl = await getSignedUrlFromGCS(id);
 
   const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
@@ -82,10 +76,17 @@ async function convertTextToSpeech(text: string) {
       },
       voice: {
         languageCode: 'en-US',
-        ssmlGender: 'FEMALE'
+        ssmlGender: 'FEMALE',
+        name: 'en-US-Neural2-H'
       },
+      // voice: {
+      //   languageCode: 'uk-UA',
+      //   ssmlGender: 'FEMALE',
+      //   name: 'uk-UA-Standard-A'
+      // },
       audioConfig: {
-        audioEncoding: 'MP3'
+        audioEncoding: 'MP3',
+        speakingRate: .90,
       },
     };
 
@@ -117,7 +118,7 @@ async function uploadAudioToGCS(audioContent: Buffer, id: string) {
       });
 
       stream.on('finish', () => {
-        console.log(`File with id: ${id} uploaded to ${destination} in bucket ${bucketName}`);
+        // console.log(`File with id: ${id} uploaded to ${destination} in bucket ${bucketName}`);
         resolve(true);
       });
 
@@ -152,7 +153,7 @@ export async function deleteAudioFromGCS(id: string) {
     const file = bucket.file(destination);
 
     await file.delete();
-    console.log(`File with id: ${id} was successfully deleted`);
+    // console.log(`File with id: ${id} was successfully deleted`);
   } catch (error: any) {
     console.error(`Error deleting file with id: ${id} from GCS: ${error}`);
   }
@@ -169,7 +170,7 @@ export async function deleteAllAudioFilesFromGCS() {
     // Execute all delete operations
     await Promise.all(deletePromises);
 
-    console.log(`All files in folder ${serverAudioFilesFolder} were successfully deleted`);
+    // console.log(`All files in folder ${serverAudioFilesFolder} were successfully deleted`);
   } catch (error: any) {
     console.error(`Error deleting all GCS files from folder ${serverAudioFilesFolder}: ${error}`);
   }

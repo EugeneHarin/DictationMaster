@@ -1,8 +1,8 @@
 import Image from 'next/image';
 import { UpdateDictation, DeleteDictation, TestDictation } from '@/app/ui/dictations/buttons';
-import DictationStatus from '@/app/ui/dictations/status';
+import DictationStatus from '@/app/ui/dictations/DictationStatus';
 import { formatDateToLocal, } from '@/app/lib/utils';
-import { fetchFilteredDictations } from '@/app/lib/data';
+import { fetchFilteredDictations } from '@/app/lib/dictation-functions/fetch';
 
 export default async function DictationsTable({
   query,

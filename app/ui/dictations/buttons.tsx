@@ -1,6 +1,6 @@
 import { EyeIcon, PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { deleteDictation } from '@/app/lib/actions'
+import { deleteDictation } from '@/app/lib/dictation-functions/crud'
 
 export function CreateDictation() {
   return (

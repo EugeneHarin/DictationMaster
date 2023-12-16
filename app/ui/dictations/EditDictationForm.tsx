@@ -10,17 +10,20 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
-import { createDictation } from '@/app/lib/actions';
+import { updateDictation } from '@/app/lib/dictation-functions/crud';
 import { useFormState } from 'react-dom';
 import { useMemo } from "react";
 
-export default function CreateDictationForm({
+export default function EditDictationForm({
+  dictation,
   teachers,
 }: {
+  dictation: DictationForm;
   teachers: TeacherField[];
 }) {
   const initialState = { errors: {}, message: null };
-  const [state, dispatch] = useFormState(createDictation, initialState);
+  const updateDictationWithId = updateDictation.bind(null, dictation.id);
+  const [state, dispatch] = useFormState(updateDictationWithId, initialState);
   const errorsCount = state.errors ? Object.keys(state.errors).length : 0;
 
   // Show actual error in the console
@@ -41,7 +44,7 @@ export default function CreateDictationForm({
               id="teacher"
               name="teacherId"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue=""
+              defaultValue={dictation.teacher_id}
               aria-describedby="teacher-error"
             >
               <option value="" disabled>
@@ -76,7 +79,7 @@ export default function CreateDictationForm({
                 id="title"
                 name="title"
                 type="text"
-                defaultValue=""
+                defaultValue={dictation.title}
                 placeholder="Enter dictation title"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                 aria-describedby="title-error"
@@ -105,12 +108,12 @@ export default function CreateDictationForm({
                 id="content"
                 name="content"
                 rows={5}
-                defaultValue=""
+                defaultValue={dictation.content}
                 placeholder="Enter dictation content"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                 aria-describedby="content-error"
               />
-              <DocumentTextIcon className="pointer-events-none absolute left-3 top-[1.125rem] h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <DocumentTextIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
           </div>
           <div id="content-error" aria-live="polite" aria-atomic="true">
@@ -136,7 +139,7 @@ export default function CreateDictationForm({
                   name="status"
                   type="radio"
                   value="draft"
-                  defaultChecked={false}
+                  defaultChecked={dictation.status === 'draft'}
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                 />
                 <label
@@ -152,7 +155,7 @@ export default function CreateDictationForm({
                   name="status"
                   type="radio"
                   value="published"
-                  defaultChecked={false}
+                  defaultChecked={dictation.status === 'published'}
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                 />
                 <label
@@ -188,7 +191,7 @@ export default function CreateDictationForm({
         >
           Cancel
         </Link>
-        <Button type="submit">Create Dictation</Button>
+        <Button type="submit">Edit Dictation</Button>
       </div>
     </form>
   );

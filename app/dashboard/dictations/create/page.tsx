@@ -1,6 +1,6 @@
-import Form from '@/app/ui/dictations/create-form';
-import Breadcrumbs from '@/app/ui/dictations/breadcrumbs';
-import { fetchTeachers } from '@/app/lib/data';
+import Form from '@/app/ui/dictations/CreateDictationForm';
+import Breadcrumbs from '@/app/ui/dictations/Breadcrumbs';
+import { fetchAllTeachers } from '@/app/lib/teacher-functions/fetch';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 
 export default async function Page() {
-  const teachers = await fetchTeachers();
+  const teachers = await fetchAllTeachers();
 
   return (
     <main>

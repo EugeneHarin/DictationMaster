@@ -1,10 +1,8 @@
 'use client';
 
-import { TeacherField, DictationForm } from '@/app/lib/definitions';
+import { TeacherField } from '@/app/lib/definitions';
 import {
   CheckIcon,
-  ClockIcon,
-  CurrencyDollarIcon,
   DocumentTextIcon,
   PencilIcon,
   PencilSquareIcon,
@@ -12,20 +10,17 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
-import { updateDictation } from '@/app/lib/actions';
+import { createDictation } from '@/app/lib/dictation-functions/crud';
 import { useFormState } from 'react-dom';
 import { useMemo } from "react";
 
-export default function EditDictationForm({
-  dictation,
+export default function CreateDictationForm({
   teachers,
 }: {
-  dictation: DictationForm;
   teachers: TeacherField[];
 }) {
   const initialState = { errors: {}, message: null };
-  const updateDictationWithId = updateDictation.bind(null, dictation.id);
-  const [state, dispatch] = useFormState(updateDictationWithId, initialState);
+  const [state, dispatch] = useFormState(createDictation, initialState);
   const errorsCount = state.errors ? Object.keys(state.errors).length : 0;
 
   // Show actual error in the console
@@ -46,7 +41,7 @@ export default function EditDictationForm({
               id="teacher"
               name="teacherId"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue={dictation.teacher_id}
+              defaultValue=""
               aria-describedby="teacher-error"
             >
               <option value="" disabled>
@@ -81,7 +76,7 @@ export default function EditDictationForm({
                 id="title"
                 name="title"
                 type="text"
-                defaultValue={dictation.title}
+                defaultValue=""
                 placeholder="Enter dictation title"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                 aria-describedby="title-error"
@@ -110,12 +105,12 @@ export default function EditDictationForm({
                 id="content"
                 name="content"
                 rows={5}
-                defaultValue={dictation.content}
+                defaultValue=""
                 placeholder="Enter dictation content"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                 aria-describedby="content-error"
               />
-              <DocumentTextIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <DocumentTextIcon className="pointer-events-none absolute left-3 top-[1.125rem] h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
           </div>
           <div id="content-error" aria-live="polite" aria-atomic="true">
@@ -141,7 +136,7 @@ export default function EditDictationForm({
                   name="status"
                   type="radio"
                   value="draft"
-                  defaultChecked={dictation.status === 'draft'}
+                  defaultChecked={false}
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                 />
                 <label
@@ -157,7 +152,7 @@ export default function EditDictationForm({
                   name="status"
                   type="radio"
                   value="published"
-                  defaultChecked={dictation.status === 'published'}
+                  defaultChecked={false}
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                 />
                 <label
@@ -193,7 +188,7 @@ export default function EditDictationForm({
         >
           Cancel
         </Link>
-        <Button type="submit">Edit Dictation</Button>
+        <Button type="submit">Create Dictation</Button>
       </div>
     </form>
   );
