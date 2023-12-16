@@ -64,7 +64,7 @@ async function seedTeachers(client) {
     console.log(`Created "teachers" table`);
 
     // Insert data into the "teachers" table
-    const insertedCustomers = await Promise.all(
+    const insertedTeachers = await Promise.all(
       teachers.map(
         (teacher) => client.sql`
           INSERT INTO teachers (id, name, email, image_url)
@@ -74,11 +74,11 @@ async function seedTeachers(client) {
       ),
     );
 
-    console.log(`Seeded ${insertedCustomers.length} teachers`);
+    console.log(`Seeded ${insertedTeachers.length} teachers`);
 
     return {
       createTable,
-      teachers: insertedCustomers,
+      teachers: insertedTeachers,
     };
   } catch (error) {
     console.error('Error seeding teachers:', error);

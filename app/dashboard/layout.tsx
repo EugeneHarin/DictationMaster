@@ -1,12 +1,6 @@
 import SideNav from '@/app/ui/dashboard/sidenav';
-import { dictations } from "./../lib/placeholder-data";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  () => {
-    'use client'
-    localStorage.setItem('dictations', JSON.stringify(dictations));
-  }
-
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
       <div className="w-full flex-none md:w-64">

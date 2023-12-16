@@ -1,4 +1,4 @@
-import DictationmasterLogo from '@/app/ui/acme-logo';
+import DictationmasterLogo from '@/app/ui/dictation-master-logo';
 import LoginForm from '@/app/ui/login-form';
 import { Metadata } from 'next';
 
