@@ -19,12 +19,12 @@ export async function getCachedAudioUrl(id: string) {
   }
 }
 
-export async function setCachedAudioUrl(id: string, audioFileUrl: string, audioFileExpDate: string) {
+export async function setCachedAudioUrl(id: string, audioFileUrl: string, audioFileExpDate: Date) {
   try {
     const data = await sql<AudioFileDataField>`
       UPDATE dictations
       SET audio_file_url = ${audioFileUrl},
-      audio_file_exp_date = ${audioFileExpDate}
+      audio_file_exp_date = ${audioFileExpDate.toISOString()}
       WHERE dictations.id = ${id};
     `;
     return true;

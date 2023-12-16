@@ -54,7 +54,6 @@ async function getSignedUrlFromGCS(id: string) {
 }
 
 async function getCachedSignedUrl(id: string) {
-  const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
   const audioCacheEntry = await getCachedAudioUrl(id);
 
   // Check if we have a cached URL for this id and it's less than 1 hour old
@@ -66,7 +65,12 @@ async function getCachedSignedUrl(id: string) {
   // Generate a new signed URL
   console.log(`Cached URL not found for id: ${id}, generating a new one...`);
   const newUrl = await getSignedUrlFromGCS(id);
-  if (newUrl !== undefined) setCachedAudioUrl(id, newUrl, new Date().toISOString()); // Update the cache
+
+  const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+  const currentTime = new Date();
+  const oneHourFromNow = new Date(currentTime.getTime() + oneHour);
+
+  if (newUrl !== undefined) setCachedAudioUrl(id, newUrl, oneHourFromNow); // Update the cache
   return newUrl;
 }
 

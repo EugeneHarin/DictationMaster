@@ -100,7 +100,7 @@ async function seedDictations(client) {
         content VARCHAR(3000) NOT NULL,
         words_count INT NOT NULL,
         audio_file_url VARCHAR(1600),
-        audio_file_exp_date DATE,
+        audio_file_exp_date TIMESTAMPTZ,
         status VARCHAR(255) NOT NULL,
         date DATE NOT NULL
       );
