@@ -7,6 +7,8 @@ import { redirect } from 'next/navigation';
 import { AuthError } from 'next-auth';
 import { signIn } from '@/auth';
 import { deleteAudioFromGCS } from "./google-cloud-actions";
+import { DictationsTable } from "./definitions";
+import { deleteCachedAudioUrl } from "./cache";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -99,9 +101,28 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
   }
   const { teacherId, title, content, status } = validatedFields.data;
   const wordsCount = content.match(/\b\w+\b/g)?.length || 0;
+  let oldDictationContent = null;
 
   try {
-    sql`
+    // Get old Dictation Content value to decide if we need to replace the cached Audio file
+    const data = await sql<Pick<DictationsTable, 'content'>>`
+      SELECT content
+      FROM dictations
+      WHERE dictations.id = ${id}
+    `
+    oldDictationContent = data.rows[0].content;
+
+  } catch (error: any) {
+    return {
+      errors: {
+        databaseError: error.message
+      },
+      message: 'Database Error: Failed to Get Dictation Data.',
+    };
+  }
+
+  try {
+    await sql`
       UPDATE dictations
       SET teacher_id = ${teacherId},
       title = ${title},
@@ -119,7 +140,10 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
     };
   }
 
-  deleteAudioFromGCS(id);
+  if (oldDictationContent !== content) {
+    deleteAudioFromGCS(id);
+    deleteCachedAudioUrl(id);
+  }
 
   revalidatePath('/dashboard/dictations');
   redirect('/dashboard/dictations');
@@ -127,8 +151,9 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
 
 export async function deleteDictation(id: string) {
   try {
-    await sql`DELETE FROM dictations WHERE id = ${id}`;
-    await deleteAudioFromGCS(id);
+    sql`DELETE FROM dictations WHERE id = ${id}`;
+    deleteAudioFromGCS(id);
+    deleteCachedAudioUrl(id);
     revalidatePath('/dashboard/dictations');
     return { message: 'Deleted Dictation.' };
   } catch (error: any) {

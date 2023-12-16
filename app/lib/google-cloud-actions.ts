@@ -4,6 +4,7 @@
 import { Storage } from '@google-cloud/storage'
 import { TextToSpeechClient, protos } from '@google-cloud/text-to-speech';
 import { DictationForm } from "./definitions";
+import { getCachedAudioUrl, setCachedAudioUrl } from "./cache";
 
 // GCS - Google Cloud Storage
 const googleApplicationCredentialsBase64 = process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64;
@@ -15,7 +16,6 @@ const serviceAccountKey = JSON.parse(Buffer.from(googleApplicationCredentialsBas
 const storage = new Storage({ credentials: serviceAccountKey });
 const TTSClient = new TextToSpeechClient({ credentials: serviceAccountKey });
 const bucket = storage.bucket(bucketName);
-
 
 type CacheEntry = {
   url: string | undefined;
@@ -55,18 +55,18 @@ async function getSignedUrlFromGCS(id: string) {
 
 async function getCachedSignedUrl(id: string) {
   const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
-  const currentCacheEntry = cache[id];
+  const audioCacheEntry = await getCachedAudioUrl(id);
 
   // Check if we have a cached URL for this id and it's less than 1 hour old
-  if (currentCacheEntry?.url && (Date.now() - currentCacheEntry.timestamp) < oneHour) {
-    console.log(`Cached URL found for id: ${id}`);
-    return currentCacheEntry.url;
+  if (audioCacheEntry?.audio_file_url && audioCacheEntry.audio_file_exp_date && ( Date.now() < Date.parse(audioCacheEntry.audio_file_exp_date) )) {
+    console.log(`Cached URL found in DB for id: ${id}`);
+    return audioCacheEntry.audio_file_url;
   }
 
   // Generate a new signed URL
   console.log(`Cached URL not found for id: ${id}, generating a new one...`);
   const newUrl = await getSignedUrlFromGCS(id);
-  if (newUrl !== undefined) cache[id] = { url: newUrl, timestamp: Date.now() }; // Update the cache
+  if (newUrl !== undefined) setCachedAudioUrl(id, newUrl, new Date().toISOString()); // Update the cache
   return newUrl;
 }
 
@@ -127,7 +127,7 @@ async function uploadAudioToGCS(audioContent: Buffer, id: string) {
 }
 
 export async function getAudioFileUrl(dictation: DictationForm) {
-  console.log(cache);
+
   const existingFileUrl = await getCachedSignedUrl(dictation.id);
 
   if (existingFileUrl !== undefined) return existingFileUrl;
@@ -149,7 +149,6 @@ export async function deleteAudioFromGCS(id: string) {
 
     await file.delete();
     console.log(`File with id: ${id} was successfully deleted`);
-    clearAudioFilesCacheForId(id);
   } catch (error: any) {
     console.error(`Error deleting file with id: ${id} from GCS: ${error}`);
   }
@@ -170,12 +169,4 @@ export async function deleteAllAudioFilesFromGCS() {
   } catch (error: any) {
     console.error(`Error deleting all GCS files from folder ${serverAudioFilesFolder}: ${error}`);
   }
-}
-
-async function clearAudioFilesCache() {
-  Object.keys(cache).forEach(key => delete cache[key]);
-}
-
-async function clearAudioFilesCacheForId(id: string) {
-  if (cache[id]) delete cache[id];
 }

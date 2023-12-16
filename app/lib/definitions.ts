@@ -22,6 +22,11 @@ export type TeacherField = {
   name: string;
 };
 
+export type AudioFileDataField = {
+  audio_file_url: string | null;
+  audio_file_exp_date: string | null;
+}
+
 export type DictationForm = {
   id: string;
   teacher_id: string;
