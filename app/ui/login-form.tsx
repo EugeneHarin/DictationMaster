@@ -9,10 +9,10 @@ import {
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/app/ui/button';
 import { useFormState, useFormStatus } from 'react-dom';
-import { authenticate } from '../lib/user-actions';
+import { authenticateWithCredentials } from '../lib/user-actions';
 
 export default function LoginForm() {
-  const [errorMessage, dispatch] = useFormState(authenticate, undefined);
+  const [errorMessage, dispatch] = useFormState(authenticateWithCredentials, undefined);
 
   return (
     <form action={dispatch} className="space-y-3">

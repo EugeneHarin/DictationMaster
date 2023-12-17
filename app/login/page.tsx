@@ -1,6 +1,7 @@
 import DictationmasterLogo from '@/app/ui/dictation-master-logo';
 import LoginForm from '@/app/ui/login-form';
 import { Metadata } from 'next';
+import GitHubLoginForm from "../ui/GitHubLoginForm";
 
 export const metadata: Metadata = {
   title: 'Login',
@@ -16,6 +17,7 @@ export default function LoginPage() {
           </div>
         </div>
         <LoginForm />
+        {/* <GitHubLoginForm /> */}
       </div>
     </main>
   );

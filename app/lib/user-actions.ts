@@ -5,7 +5,7 @@ import { User } from "./definitions";
 import { signIn } from '@/auth';
 import { sql } from "@vercel/postgres";
 
-export async function authenticate(
+export async function authenticateWithCredentials(
   prevState: string | undefined,
   formData: FormData,
 ) {
@@ -20,6 +20,14 @@ export async function authenticate(
           return 'Something went wrong.';
       }
     }
+    throw error;
+  }
+}
+
+export async function authenticateWithGithub() {
+  try {
+    await signIn('github');
+  } catch (error) {
     throw error;
   }
 }
