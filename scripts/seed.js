@@ -5,18 +5,20 @@ const {
   dictations
 } = require('../app/lib/database-placeholder-data.js');
 const bcrypt = require('bcrypt');
+const { sql } = require("@vercel/postgres");
 
 async function seedUsers(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-    await client.sql`DROP TABLE IF EXISTS users`;
+
     // Create the "users" table if it doesn't exist
     const createTable = await client.sql`
       CREATE TABLE IF NOT EXISTS users (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL
+        password TEXT NOT NULL,
+        role VARCHAR(255)
       );
     `;
 
@@ -27,8 +29,8 @@ async function seedUsers(client) {
       users.map(async (user) => {
         const hashedPassword = await bcrypt.hash(user.password, 10);
         return client.sql`
-          INSERT INTO users (id, name, email, password)
-          VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
+          INSERT INTO users (name, email, password, role)
+          VALUES (${user.name}, ${user.email}, ${hashedPassword}, ${user.role})
           ON CONFLICT (id) DO NOTHING;
         `;
       }),
@@ -50,7 +52,6 @@ async function seedTeachers(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
-    await client.sql`DROP TABLE IF EXISTS teachers cascade`;
     // Create the "teachers" table if it doesn't exist
     const createTable = await client.sql`
       CREATE TABLE IF NOT EXISTS teachers (
@@ -90,7 +91,6 @@ async function seedDictations(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
-    await client.sql`DROP TABLE IF EXISTS dictations`;
     // Create the "dictations" table if it doesn't exist
     const createTable = await client.sql`
         CREATE TABLE IF NOT EXISTS dictations (
@@ -131,9 +131,23 @@ async function seedDictations(client) {
   }
 }
 
+async function dropAllTables(client) {
+  try {
+    client.sql`
+      DROP SCHEMA public CASCADE;
+      CREATE SCHEMA public;
+    `;
+    console.log('Dropped all tables');
+  } catch (error) {
+    console.error('Error dropping all tables:', error);
+    throw error;
+  }
+}
+
 async function main() {
   const client = await db.connect();
 
+  await dropAllTables(client);
   await seedUsers(client);
   await seedTeachers(client);
   await seedDictations(client);

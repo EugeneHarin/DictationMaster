@@ -1,19 +1,42 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { authConfig } from './auth.config';
 import { z } from 'zod';
-import bcrypt from 'bcrypt';
-import { getUser } from './app/lib/user-actions';
-import GitHubProvider from 'next-auth/providers/github';
+import bcryptjs from 'bcryptjs';
+import { getUserByEmail, getUserRole } from './app/lib/user-actions';
 
 export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
-  ...authConfig,
+  session: {
+    strategy: 'jwt',
+  },
+  pages: {
+    signIn: '/login',
+  },
+  callbacks: {
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = !!auth?.user;
+      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
+      if (isOnDashboard) {
+        if (isLoggedIn) return true;
+        return false; // Redirect unauthenticated users to login page
+      } else if (isLoggedIn) {
+        return Response.redirect(new URL('/dashboard', nextUrl));
+      }
+      return true;
+    },
+    async jwt({ token, user }) {
+      if(user && user.id) token.role = await getUserRole(user.id);
+      return token;
+    },
+    session({ session, token }) {
+      session.user.role = token.role;
+      return session;
+    },
+  },
   providers: [
-    GitHubProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
-    }),
     CredentialsProvider({
+      id: 'credentials',
+      name: 'credentials',
+      credentials: {},
       async authorize(credentials) {
         const parsedCredentials = z
           .object({ email: z.string().email(), password: z.string().min(6) })
@@ -21,9 +44,9 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
 
         if (parsedCredentials.success) {
           const { email, password } = parsedCredentials.data;
-          const user = await getUser(email);
+          const user = await getUserByEmail(email);
           if (!user) return null;
-          const passwordsMatch = await bcrypt.compare(password, user.password);
+          const passwordsMatch = await bcryptjs.compare(password, user.password);
 
           if (passwordsMatch) return user;
         }

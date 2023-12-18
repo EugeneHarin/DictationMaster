@@ -2,7 +2,7 @@
 
 import { AuthError } from 'next-auth';
 import { User } from "./definitions";
-import { signIn } from '@/auth';
+import { signIn, auth } from '@/auth';
 import { sql } from "@vercel/postgres";
 
 export async function authenticateWithCredentials(
@@ -10,7 +10,10 @@ export async function authenticateWithCredentials(
   formData: FormData,
 ) {
   try {
-    await signIn('credentials', formData);
+    await signIn('credentials', {
+      email: formData.get('email'),
+      password: formData.get('password'),
+    });
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -24,6 +27,21 @@ export async function authenticateWithCredentials(
   }
 }
 
+export async function getUserRole(id: string) {
+  try {
+    const user = await sql<User>`SELECT role FROM users WHERE id=${id}`;
+    return user.rows[0].role;
+  } catch (error) {
+    console.error('Failed to fetch user role:', error);
+    throw new Error('Failed to fetch user role.');
+  }
+}
+
+export async function getCurrentUserRole() {
+  const session = await auth();
+  return session?.user?.role;
+}
+
 export async function authenticateWithGithub() {
   try {
     await signIn('github');
@@ -32,7 +50,7 @@ export async function authenticateWithGithub() {
   }
 }
 
-export async function getUser(email: string): Promise<User | undefined> {
+export async function getUserByEmail(email: string): Promise<User | undefined> {
   try {
     const user = await sql<User>`SELECT * FROM users WHERE email=${email}`;
     return user.rows[0];
