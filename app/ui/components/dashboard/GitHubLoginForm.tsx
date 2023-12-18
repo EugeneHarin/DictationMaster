@@ -1,6 +1,6 @@
-import { Button } from "./button";
+import { Button } from "./Button";
 import { ArrowRightIcon } from "@heroicons/react/20/solid";
-import { authenticateWithGithub } from "../lib/user-actions";
+import { authenticateWithGithub } from "../../../lib/user-actions";
 
 export default function GitHubLoginForm() {
   return(

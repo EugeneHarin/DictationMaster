@@ -44,7 +44,7 @@ const links: LinksList[] = [
 
 export default function NavLinks() {
   const pathname = usePathname();
-  const [userRole, setUserRole] = useState(null);
+  const [userRole, setUserRole] = useState<User['role']>();
 
   useEffect(() => {
     const fetchUserRole = async () => {

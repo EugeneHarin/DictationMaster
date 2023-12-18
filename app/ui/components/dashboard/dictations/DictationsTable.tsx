@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import { UpdateDictation, DeleteDictation, ViewDictation, StartDictation } from '@/app/ui/dictations/buttons';
-import DictationStatus from '@/app/ui/dictations/DictationStatus';
+import { UpdateDictation, DeleteDictation, ViewDictation, StartDictation } from '@/app/ui/components/dashboard/dictations/action-buttons';
+import DictationStatus from '@/app/ui/components/dashboard/dictations/DictationStatus';
 import { formatDateToLocal, } from '@/app/lib/utils';
 import { fetchFilteredDictations } from '@/app/lib/dictation-functions/fetch';
 import { getCurrentUserRole } from "@/app/lib/user-actions";

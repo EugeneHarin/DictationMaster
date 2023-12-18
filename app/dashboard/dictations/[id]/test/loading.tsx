@@ -1,4 +1,4 @@
-import LoadingBox from "@/app/ui/loading-box";
+import LoadingBox from "@/app/ui/components/dashboard/LoadingBox";
 
 export default function Loading() {
   return <LoadingBox />;

@@ -1,5 +1,5 @@
-import Form from '@/app/ui/dictations/CreateDictationForm';
-import Breadcrumbs from '@/app/ui/dictations/Breadcrumbs';
+import Form from '@/app/ui/components/dashboard/dictations/create/CreateDictationForm';
+import Breadcrumbs from '@/app/ui/components/dashboard/Breadcrumbs';
 import { fetchAllTeachers } from '@/app/lib/teacher-functions/fetch';
 import { Metadata } from 'next';
 

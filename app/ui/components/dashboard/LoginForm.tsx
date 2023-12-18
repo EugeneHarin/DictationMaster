@@ -7,9 +7,9 @@ import {
   ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
-import { Button } from '@/app/ui/button';
+import { Button } from '@/app/ui/components/dashboard/Button';
 import { useFormState, useFormStatus } from 'react-dom';
-import { authenticateWithCredentials } from '../lib/user-actions';
+import { authenticateWithCredentials } from '../../../lib/user-actions';
 
 export default function LoginForm() {
   const [errorMessage, dispatch] = useFormState(authenticateWithCredentials, undefined);

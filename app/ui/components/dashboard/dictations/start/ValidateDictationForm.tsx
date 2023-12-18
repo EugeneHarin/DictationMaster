@@ -2,7 +2,7 @@
 
 import { UserCircleIcon, DocumentTextIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useFormState, useFormStatus } from "react-dom";
-import { Button } from "../button";
+import { Button } from "../../Button";
 import { validateDictation } from "@/app/lib/dictation-functions/validation";
 import { DictationWithTeacher } from "@/app/lib/definitions";
 

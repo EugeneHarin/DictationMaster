@@ -1,7 +1,7 @@
 import { fetchDictationById } from "@/app/lib/dictation-functions/fetch";
-import Breadcrumbs from "@/app/ui/dictations/Breadcrumbs";
-import ViewDictationForm from "@/app/ui/dictations/test-form";
-import LoadingBox from "@/app/ui/loading-box";
+import Breadcrumbs from "@/app/ui/components/dashboard/Breadcrumbs";
+import ViewDictationForm from "@/app/ui/components/dashboard/dictations/test/ViewDictationForm";
+import LoadingBox from "@/app/ui/components/dashboard/LoadingBox";
 import { Metadata } from "next";
 import { Suspense } from "react";
 

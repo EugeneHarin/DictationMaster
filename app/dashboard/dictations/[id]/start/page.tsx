@@ -1,8 +1,8 @@
-import Breadcrumbs from "@/app/ui/dictations/Breadcrumbs";
+import Breadcrumbs from "@/app/ui/components/dashboard/Breadcrumbs";
 import { fetchDictationWithTeacher } from "@/app/lib/dictation-functions/fetch";
 import { notFound } from "next/navigation";
 import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-actions";
-import { ValidateDictationForm } from "@/app/ui/dictations/ValidateDictationForm";
+import { ValidateDictationForm } from "@/app/ui/components/dashboard/dictations/start/ValidateDictationForm";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

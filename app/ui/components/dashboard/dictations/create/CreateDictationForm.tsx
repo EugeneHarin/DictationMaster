@@ -9,7 +9,7 @@ import {
   UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { Button } from '@/app/ui/button';
+import { Button } from '@/app/ui/components/dashboard/Button';
 import { createDictation } from '@/app/lib/dictation-functions/crud';
 import { useFormState } from 'react-dom';
 import { useMemo } from "react";
