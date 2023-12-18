@@ -4,9 +4,29 @@ import {
   DictationsTable,
   DictationForm,
   TeachersTable,
+  DictationWithTeacher,
 } from '../definitions';
 
 const DICTATIONS_PER_PAGE = 6;
+
+export async function fetchDictationWithTeacher(id: string) {
+  try {
+    const dictations = await sql<DictationWithTeacher>`
+      SELECT
+        dictations.*,
+        teachers.name,
+        teachers.image_url
+      FROM dictations
+      JOIN teachers ON dictations.teacher_id = teachers.id
+      WHERE dictations.id = ${id}
+    `;
+
+    return dictations.rows[0];
+  } catch (error) {
+    console.error('Failed to fetch dictation with teacher. Database Error:', error);
+    return false;
+  }
+}
 
 export async function fetchFilteredDictations(
   query: string,

@@ -131,7 +131,7 @@ async function uploadAudioToGCS(audioContent: Buffer, id: string) {
   }
 }
 
-export async function getAudioFileUrl(dictation: DictationForm) {
+export async function retrieveAudioFileUrl(dictation: DictationForm) {
 
   const existingFileUrl = await getCachedSignedUrl(dictation.id);
 

@@ -1,4 +1,4 @@
-import { EyeIcon, PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, PencilIcon, PlayCircleIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { deleteDictation } from '@/app/lib/dictation-functions/crud'
 
@@ -14,13 +14,13 @@ export function CreateDictation() {
   );
 }
 
-export function TestDictation({ id }: { id: string }) {
+export function ViewDictation({ id }: { id: string }) {
   return (
     <Link
       href={`/dashboard/dictations/${id}/test`}
       className="rounded-md border p-2 hover:bg-gray-100"
     >
-      <EyeIcon className="w-5" />
+      <EyeIcon title="View Dictation" className="w-5" />
     </Link>
   );
 }
@@ -31,7 +31,7 @@ export function UpdateDictation({ id }: { id: string }) {
       href={`/dashboard/dictations/${id}/edit`}
       className="rounded-md border p-2 hover:bg-gray-100"
     >
-      <PencilIcon className="w-5" />
+      <PencilIcon title="Edit Dictation" className="w-5" />
     </Link>
   );
 }
@@ -42,8 +42,19 @@ export function DeleteDictation({ id }: { id: string }) {
     <form action={deleteDictationWithId}>
       <button className="rounded-md border p-2 hover:bg-gray-100">
         <span className="sr-only">Delete</span>
-        <TrashIcon className="w-5" />
+        <TrashIcon title="Delete Dictation" className="w-5" />
       </button>
     </form>
+  );
+}
+
+export function StartDictation({ id }: { id: string }) {
+  return (
+    <Link
+      href={`/dashboard/dictations/${id}/start`}
+      className="rounded-md border p-2 hover:bg-gray-100"
+    >
+      <PlayCircleIcon title="Start Dictation" className="w-5" />
+    </Link>
   );
 }

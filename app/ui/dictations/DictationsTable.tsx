@@ -1,8 +1,9 @@
 import Image from 'next/image';
-import { UpdateDictation, DeleteDictation, TestDictation } from '@/app/ui/dictations/buttons';
+import { UpdateDictation, DeleteDictation, ViewDictation, StartDictation } from '@/app/ui/dictations/buttons';
 import DictationStatus from '@/app/ui/dictations/DictationStatus';
 import { formatDateToLocal, } from '@/app/lib/utils';
 import { fetchFilteredDictations } from '@/app/lib/dictation-functions/fetch';
+import { getCurrentUserRole } from "@/app/lib/user-actions";
 
 export default async function DictationsTable({
   query,
@@ -12,6 +13,7 @@ export default async function DictationsTable({
   currentPage: number;
 }) {
   const dictations = await fetchFilteredDictations(query, currentPage);
+  const userRole = await getCurrentUserRole();
 
   return (
     <div className="mt-6 flow-root">
@@ -25,16 +27,18 @@ export default async function DictationsTable({
               >
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
-                    <div className="mb-2 flex items-center">
-                      <Image
-                        src={dictation.image_url}
-                        className="mr-2 rounded-full"
-                        width={28}
-                        height={28}
-                        alt={`${dictation.name}'s profile picture`}
-                      />
-                      <p>{dictation.name}</p>
-                    </div>
+                    {dictation.image_url && (
+                      <div className="mb-2 flex items-center">
+                        <Image
+                          src={dictation.image_url}
+                          className="mr-2 rounded-full"
+                          width={28}
+                          height={28}
+                          alt={`${dictation.name}'s profile picture`}
+                        />
+                        <p>{dictation.name}</p>
+                      </div>
+                    )}
                     <p className="text-sm text-gray-500"><b>{dictation.title}</b></p>
                   </div>
                   <DictationStatus status={dictation.status} />
@@ -47,8 +51,18 @@ export default async function DictationsTable({
                     <p>{formatDateToLocal(dictation.date)}</p>
                   </div>
                   <div className="flex justify-end gap-2">
-                    <UpdateDictation id={dictation.id} />
-                    <DeleteDictation id={dictation.id} />
+                    {userRole == 'teacher' && (
+                      <>
+                      <ViewDictation id={dictation.id} />
+                      <UpdateDictation id={dictation.id} />
+                      <DeleteDictation id={dictation.id} />
+                      </>
+                    )}
+                    {userRole == 'student' && (
+                      <>
+                      <StartDictation id={dictation.id} />
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -84,16 +98,18 @@ export default async function DictationsTable({
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                 >
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <div className="flex items-center gap-3">
-                      <Image
-                        src={dictation.image_url}
-                        className="rounded-full"
-                        width={28}
-                        height={28}
-                        alt={dictation.name}
-                      />
-                      <p>{dictation.name}</p>
-                    </div>
+                    {dictation.image_url && (
+                      <div className="flex items-center gap-3">
+                        <Image
+                          src={dictation.image_url}
+                          className="rounded-full"
+                          width={28}
+                          height={28}
+                          alt={dictation.name}
+                        />
+                        <p>{dictation.name}</p>
+                      </div>
+                    )}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     <b>{dictation.title}</b>
@@ -109,9 +125,18 @@ export default async function DictationsTable({
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      <TestDictation id={dictation.id} />
+                    {userRole == 'teacher' && (
+                      <>
+                      <ViewDictation id={dictation.id} />
                       <UpdateDictation id={dictation.id} />
                       <DeleteDictation id={dictation.id} />
+                      </>
+                    )}
+                    {userRole == 'student' && (
+                      <>
+                      <StartDictation id={dictation.id} />
+                      </>
+                    )}
                     </div>
                   </td>
                 </tr>
