@@ -1,8 +1,8 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { z } from 'zod';
-import bcryptjs from 'bcryptjs';
 import { getUserByEmail, getUserRole } from './app/lib/user-actions';
+import { verifyPassword } from '@/scripts/password-utils';
 
 export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
   session: {
@@ -46,7 +46,8 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
           const { email, password } = parsedCredentials.data;
           const user = await getUserByEmail(email);
           if (!user) return null;
-          const passwordsMatch = await bcryptjs.compare(password, user.password);
+          const storedPassword = user.password;
+          const passwordsMatch = verifyPassword(password.normalize('NFKC'), storedPassword.normalize('NFKC'));
 
           if (passwordsMatch) return user;
         }

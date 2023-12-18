@@ -4,8 +4,7 @@ const {
   users,
   dictations
 } = require('../app/lib/database-placeholder-data.js');
-const bcrypt = require('bcrypt');
-const { sql } = require("@vercel/postgres");
+const { hashPassword } = require('../scripts/password-utils.js');
 
 async function seedUsers(client) {
   try {
@@ -27,7 +26,7 @@ async function seedUsers(client) {
     // Insert data into the "users" table
     const insertedUsers = await Promise.all(
       users.map(async (user) => {
-        const hashedPassword = await bcrypt.hash(user.password, 10);
+        const hashedPassword = hashPassword(user.password.normalize('NFKC'));
         return client.sql`
           INSERT INTO users (name, email, password, role)
           VALUES (${user.name}, ${user.email}, ${hashedPassword}, ${user.role})
@@ -58,7 +57,7 @@ async function seedTeachers(client) {
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL,
-        image_url VARCHAR(255) NOT NULL
+        image_url VARCHAR(255)
       );
     `;
 
