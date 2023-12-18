@@ -1,6 +1,6 @@
 'use client';
 
-import { TeacherField, DictationForm } from '@/app/lib/definitions';
+import { TeachersTable, DictationForm } from '@/app/lib/definitions';
 import {
   CheckIcon,
   DocumentTextIcon,
@@ -19,7 +19,7 @@ export default function EditDictationForm({
   teachers,
 }: {
   dictation: DictationForm;
-  teachers: TeacherField[];
+  teachers: Pick<TeachersTable, 'id' | 'name'>[];
 }) {
   const initialState = { errors: {}, message: null };
   const updateDictationWithId = updateDictation.bind(null, dictation.id);

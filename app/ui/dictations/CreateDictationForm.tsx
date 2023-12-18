@@ -1,6 +1,6 @@
 'use client';
 
-import { TeacherField } from '@/app/lib/definitions';
+import { TeachersTable } from '@/app/lib/definitions';
 import {
   CheckIcon,
   DocumentTextIcon,
@@ -17,7 +17,7 @@ import { useMemo } from "react";
 export default function CreateDictationForm({
   teachers,
 }: {
-  teachers: TeacherField[];
+  teachers: Pick<TeachersTable, 'id' | 'name'>[];
 }) {
   const initialState = { errors: {}, message: null };
   const [state, dispatch] = useFormState(createDictation, initialState);

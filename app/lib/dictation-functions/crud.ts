@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { deleteAudioFromGCS } from "../google-cloud-actions";
 import { deleteCachedAudioUrl } from "../cache";
+import { DictationsTable } from "../definitions";
 
 export type State = {
   errors?: {
@@ -82,28 +83,19 @@ export async function createDictation(prevState: State, formData: FormData) {
   redirect('/dashboard/dictations');
 }
 
-export async function requestDictation(id: string, columnsArray: Array<string> | null = null) {
-  // Ensure that each column name is a valid identifier
-  const validColumns = columnsArray?.every(column => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column));
-  const columns = (validColumns && columnsArray && columnsArray.length) ? columnsArray.join(', ') : '*';
-
+export async function getDictation(id: string) {
   try {
-    const query = sql.query(`
-      SELECT ${columns}
-      FROM public.dictations
-      WHERE dictations.id = '${id}'
-    `);
-    const data = await query;
-    return data.rows[0];
+    const data = await sql`
+      SELECT *
+      FROM dictations
+      WHERE dictations.id = ${id}
+    `;
+    const dictation = data.rows[0] as DictationsTable;
+    return dictation;
 
   } catch (error: any) {
     console.error(error);
-    return {
-      errors: {
-        databaseError: error.message
-      },
-      message: 'Database Error: Failed to Get Dictation Data.',
-    };
+    throw error;
   }
 }
 
@@ -123,7 +115,7 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
   }
   const { teacherId, title, content, status } = validatedFields.data;
   const wordsCount = content.match(/\b\w+\b/g)?.length || 0;
-  let oldDictationContent = null;
+  let oldDictationContent: string;
 
   try {
     await sql`
@@ -144,7 +136,7 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
     };
   }
 
-  oldDictationContent = await requestDictation(id, ['content']);
+  oldDictationContent = (await getDictation(id)).content;
 
   if (oldDictationContent !== content) {
     deleteAudioFromGCS(id);

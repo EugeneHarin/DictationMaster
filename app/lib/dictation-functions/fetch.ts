@@ -3,6 +3,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import {
   DictationsTable,
   DictationForm,
+  TeachersTable,
 } from '../definitions';
 
 const DICTATIONS_PER_PAGE = 6;
@@ -14,8 +15,10 @@ export async function fetchFilteredDictations(
   noStore();
   const offset = (currentPage - 1) * DICTATIONS_PER_PAGE;
 
+  type FilteredDictations = DictationsTable & Pick<TeachersTable, 'name' | 'image_url'>;
+
   try {
-    const dictations = await sql<DictationsTable>`
+    const dictations = await sql<FilteredDictations>`
       SELECT
         dictations.id,
         dictations.title,

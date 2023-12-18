@@ -39,7 +39,8 @@ export async function getUserRole(id: string) {
 
 export async function getCurrentUserRole() {
   const session = await auth();
-  return session?.user?.role;
+  const userRole: User['role'] = session?.user?.role;
+  return userRole;
 }
 
 export async function authenticateWithGithub() {
