@@ -1,22 +1,14 @@
 import Breadcrumbs from "@/app/ui/components/dashboard/Breadcrumbs";
-import { fetchDictationWithTeacher } from "@/app/lib/dictation-functions/fetch";
-import { notFound } from "next/navigation";
-import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-actions";
-import { ValidateDictationForm } from "@/app/ui/components/dashboard/dictations/start/ValidateDictationForm";
 import { Metadata } from "next";
+import { StartDictationPage } from "@/app/ui/components/dashboard/dictations/start/StartDictationPage";
+import { Suspense } from "react";
+import LoadingBox from "@/app/ui/components/dashboard/LoadingBox";
 
 export const metadata: Metadata = {
   title: 'Start Dictation',
 };
 
 export default async function Page({ params }: { params: { id: string } }) {
-
-  const id = params.id;
-  const dictationWithTeacher = await fetchDictationWithTeacher(id);
-  if (!dictationWithTeacher) notFound();
-  const audioFileUrl = await retrieveAudioFileUrl(dictationWithTeacher);
-  if (!audioFileUrl) notFound();
-
   return(
     <main>
       <Breadcrumbs
@@ -24,12 +16,14 @@ export default async function Page({ params }: { params: { id: string } }) {
           { label: 'Dictations', href: '/dashboard/dictations' },
           {
             label: 'Start Dictation',
-            href: `/dashboard/dictations/${id}/start`,
+            href: `/dashboard/dictations/${params.id}/start`,
             active: true,
           },
         ]}
       />
-      <ValidateDictationForm dictationWithTeacher={dictationWithTeacher} audioFileUrl={audioFileUrl} />
+      <Suspense key={params.id} fallback={<LoadingBox />}>
+        <StartDictationPage id={params.id} />
+      </Suspense>
     </main>
   );
 };

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { UpdateDictation, DeleteDictation, ViewDictation, StartDictation } from '@/app/ui/components/dashboard/dictations/action-buttons';
+import { UpdateDictation, DeleteDictation, ViewDictation } from '@/app/ui/components/dashboard/dictations/action-buttons';
 import DictationStatus from '@/app/ui/components/dashboard/dictations/DictationStatus';
 import { formatDateToLocal, } from '@/app/lib/utils';
 import { fetchFilteredDictations } from '@/app/lib/dictation-functions/fetch';
@@ -51,18 +51,9 @@ export default async function DictationsTable({
                     <p>{formatDateToLocal(dictation.date)}</p>
                   </div>
                   <div className="flex justify-end gap-2">
-                    {userRole == 'teacher' && (
-                      <>
-                      <ViewDictation id={dictation.id} />
-                      <UpdateDictation id={dictation.id} />
-                      <DeleteDictation id={dictation.id} />
-                      </>
-                    )}
-                    {userRole == 'student' && (
-                      <>
-                      <StartDictation id={dictation.id} />
-                      </>
-                    )}
+                    <ViewDictation id={dictation.id} />
+                    <UpdateDictation id={dictation.id} />
+                    <DeleteDictation id={dictation.id} />
                   </div>
                 </div>
               </div>
@@ -125,18 +116,9 @@ export default async function DictationsTable({
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                    {userRole == 'teacher' && (
-                      <>
                       <ViewDictation id={dictation.id} />
                       <UpdateDictation id={dictation.id} />
                       <DeleteDictation id={dictation.id} />
-                      </>
-                    )}
-                    {userRole == 'student' && (
-                      <>
-                      <StartDictation id={dictation.id} />
-                      </>
-                    )}
                     </div>
                   </td>
                 </tr>
