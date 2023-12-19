@@ -15,14 +15,14 @@ export default async function ViewDictationForm({
   const role = await getCurrentUserRole();
 
   return (
-    <div className="rounded-md bg-gray-50 p-4 md:p-6 flex flex-col gap-4">
+    <div className="rounded-md bg-gray-50 p-4 md:p-6 flex flex-col gap-6">
       {/* Teacher Name */}
       <div>
-        <label htmlFor="teacher" className="mb-2 block text-sm font-medium">
+        <div className="mb-2 block text-sm font-medium">
           Teacher Name
-        </label>
+        </div>
         <div className="relative">
-          <div className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500">
+          <div className="block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500">
             {dictationWithTeacher?.name}
           </div>
           <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
@@ -31,45 +31,44 @@ export default async function ViewDictationForm({
 
       {/* Dictation Title */}
       <div>
-        <label htmlFor="title" className="mb-2 block text-sm font-medium">
+        <div className="mb-2 block text-sm font-medium">
           Dictation title
-        </label>
+        </div>
         <div className="relative mt-2 rounded-md">
-          <div className="relative">
-            <div className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500">
-              {dictationWithTeacher?.title}
+          <div className="block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500">
+            {dictationWithTeacher?.title}
+          </div>
+          <DocumentTextIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 focus:text-gray-900" />
+        </div>
+      </div>
+
+      {role == 'teacher' && (
+        <div>
+          <div className="mb-2 block text-sm font-medium">
+            Dictation content
+          </div>
+          <div className="relative mt-2 rounded-md">
+            <div className="block w-full rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500">
+              {dictationWithTeacher.content}
             </div>
-            <DocumentTextIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
           </div>
         </div>
-      </div>
+      )}
 
-      <div>
-        <audio controls>
-          <source src={audioFileUrl} type="audio/mp3" />
-        </audio>
-      </div>
-
-      {/* Field to write dictation */}
-      <div className="mb-4">
-        <label htmlFor="content" className="mb-2 block text-sm font-medium">
-          Write a content
-        </label>
-        <div className="relative mt-2 rounded-md">
-          <div className="relative">
-            <textarea
-              id="content"
-              name="content"
-              rows={5}
-              placeholder="Write dictation here"
-              className="peer block w-full rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"
-              aria-describedby="content-error"
-            />
+      {role == 'teacher' && (
+        <div>
+          <div className="mb-2 block text-sm font-medium">
+            Dictation audio
           </div>
+          <audio className="mt-2" controls>
+            <source src={audioFileUrl} type="audio/mp3" />
+          </audio>
         </div>
-      </div>
+      )}
 
-      <StartDictation id={dictationWithTeacher.id} />
+      {role == 'student' && (
+        <StartDictation id={dictationWithTeacher.id} />
+      )}
 
     </div>
   );

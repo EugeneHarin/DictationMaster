@@ -18,7 +18,7 @@ export function StartDictationForm({
   const [state, dispatch] = useFormState(validateDictationWithId, initialState);
 
   return(
-    <form action={dispatch} className="rounded-md bg-gray-50 p-4 md:p-6 flex flex-col gap-4">
+    <form action={dispatch} className="rounded-md bg-gray-50 p-4 md:p-6 flex flex-col gap-6">
       {/* Teacher Name */}
       <div>
         <label htmlFor="teacher" className="mb-2 block text-sm font-medium">
