@@ -15,6 +15,25 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
+
+      const role = auth?.user?.role;
+      if (!role) return false;
+
+      // lock pages for teacher role
+      if (
+        role == 'teacher' &&
+        nextUrl.pathname.endsWith('/start')
+      ) return false;
+
+      // lock pages for student role
+      if (
+        role == 'student' &&
+        nextUrl.pathname.endsWith('/students') &&
+        nextUrl.pathname.endsWith('/edit') &&
+        nextUrl.pathname.endsWith('/create')
+      ) return false;
+
+
       if (isOnDashboard) {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
