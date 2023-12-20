@@ -1,16 +1,17 @@
 // Import necessary hooks and components
-import React from 'react';
+import React, { Suspense } from 'react';
 import { DictationWithTeacher } from "@/app/lib/definitions";
 import { StartDictation } from "../action-buttons";
 import { UserCircleIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 import { getCurrentUserRole } from "@/app/lib/user-actions";
+import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-actions";
+import LoadingBox from "../../LoadingBox";
+import DictationAudio from "../DictationAudio";
 
 export default async function ViewDictationForm({
   dictationWithTeacher,
-  audioFileUrl
 }: {
   dictationWithTeacher: DictationWithTeacher,
-  audioFileUrl: string
 }) {
   const role = await getCurrentUserRole();
 
@@ -55,15 +56,17 @@ export default async function ViewDictationForm({
         </div>
       )}
 
-      {role == 'teacher' && (
-        <div>
-          <div className="mb-2 block text-sm font-medium">
-            Dictation audio
+      {role == 'student' && (
+        <Suspense key={dictationWithTeacher.id} fallback={<LoadingBox />}>
+          <div>
+            <div className="mb-2 block text-sm font-medium">
+              Dictation audio
+            </div>
+            <Suspense key={dictationWithTeacher.id} fallback={<LoadingBox />}>
+              <DictationAudio id={dictationWithTeacher.id} content={dictationWithTeacher.content} />
+            </Suspense>
           </div>
-          <audio className="mt-2" controls>
-            <source src={audioFileUrl} type="audio/mp3" />
-          </audio>
-        </div>
+        </Suspense>
       )}
 
       {role == 'student' && (

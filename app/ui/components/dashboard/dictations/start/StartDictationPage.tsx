@@ -6,7 +6,7 @@ import { StartDictationForm } from "@/app/ui/components/dashboard/dictations/sta
 export async function StartDictationPage({ id }: { id: string }) {
   const dictationWithTeacher = await fetchDictationWithTeacher(id);
   if (!dictationWithTeacher) notFound();
-  const audioFileUrl = await retrieveAudioFileUrl(dictationWithTeacher);
+  const audioFileUrl = await retrieveAudioFileUrl(dictationWithTeacher.id, dictationWithTeacher.content);
   if (!audioFileUrl) notFound();
 
   return(<StartDictationForm dictationWithTeacher={dictationWithTeacher} audioFileUrl={audioFileUrl} />);

@@ -131,19 +131,28 @@ async function uploadAudioToGCS(audioContent: Buffer, id: string) {
   }
 }
 
-export async function retrieveAudioFileUrl(dictation: DictationForm) {
+/**
+ *
+ * @param id id of the dictation (needed to find the file in the cloud storage)
+ * @param text text of the dictation (will be used to generate the new audiofile if file for specified id doesn't exist in cloud storage)
+ * @returns audiofile url
+ * @returns undefined
+ */
+export async function retrieveAudioFileUrl(id: string, text: string | undefined) {
 
-  const existingFileUrl = await getCachedSignedUrl(dictation.id);
+  const existingFileUrl = await getCachedSignedUrl(id);
 
   if (existingFileUrl !== undefined) return existingFileUrl;
 
-  // If file doesn't exist in cache or GCS then we generate and upload a new one
-  const audioFileContent = await convertTextToSpeech(dictation.content);
+  if (!text) return undefined;
 
-  if (undefined !== audioFileContent) await uploadAudioToGCS(audioFileContent, dictation.id);
+  // If file doesn't exist in cache or GCS then we generate and upload a new one
+  const audioFileContent = await convertTextToSpeech(text);
+
+  if (undefined !== audioFileContent) await uploadAudioToGCS(audioFileContent, id);
   else return undefined;
 
-  const newFileUrl = await getCachedSignedUrl(dictation.id);
+  const newFileUrl = await getCachedSignedUrl(id);
   return newFileUrl;
 }
 
