@@ -14,6 +14,7 @@ export default async function ViewDictationForm({
   dictationWithTeacher: DictationWithTeacher,
 }) {
   const role = await getCurrentUserRole();
+  const audioUrl = await retrieveAudioFileUrl(dictationWithTeacher.id, dictationWithTeacher.content);
 
   return (
     <div className="rounded-md bg-gray-50 p-4 md:p-6 flex flex-col gap-6">
@@ -56,14 +57,14 @@ export default async function ViewDictationForm({
         </div>
       )}
 
-      {role == 'student' && (
+      {role == 'teacher' && (
         <Suspense key={dictationWithTeacher.id} fallback={<LoadingBox />}>
           <div>
             <div className="mb-2 block text-sm font-medium">
               Dictation audio
             </div>
             <Suspense key={dictationWithTeacher.id} fallback={<LoadingBox />}>
-              <DictationAudio id={dictationWithTeacher.id} content={dictationWithTeacher.content} />
+              <DictationAudio url={audioUrl} />
             </Suspense>
           </div>
         </Suspense>

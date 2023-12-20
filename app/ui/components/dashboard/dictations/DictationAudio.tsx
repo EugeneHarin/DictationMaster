@@ -1,9 +1,17 @@
-import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-actions";
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  url: string | undefined;
+}
 
-export default async function DictationAudio({ id: dictationId, content: dictationContent }: { id: string, content: string }) {
-  return (
-    <audio className="mt-2" controls>
-      <source src={await retrieveAudioFileUrl(dictationId, dictationContent)} type="audio/mp3" />
-    </audio>
-  )
+export default async function DictationAudio({ url, className, ...rest }: ButtonProps) {
+  if (url !== undefined) {
+    return (
+      <audio className="mt-2" controls>
+        <source src={url} type="audio/mp3" />
+      </audio>
+    );
+  } else {
+    return(
+      <div>Error fetching dictation audio</div>
+    )
+  }
 }

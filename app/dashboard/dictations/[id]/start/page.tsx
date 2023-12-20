@@ -22,7 +22,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         ]}
       />
       <Suspense key={params.id} fallback={<LoadingBox />}>
-        <StartDictationPage id={params.id} />
+        <StartDictationPage dictationId={params.id} />
       </Suspense>
     </main>
   );
