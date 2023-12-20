@@ -115,7 +115,7 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
   }
   const { teacherId, title, content, status } = validatedFields.data;
   const wordsCount = content.match(/\b\w+\b/g)?.length || 0;
-  let oldDictationContent: string;
+  const oldDictationContent = (await getDictation(id)).content;
 
   try {
     await sql`
@@ -135,8 +135,6 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
       message: 'Database Error: Failed to Update Dictation.',
     };
   }
-
-  oldDictationContent = (await getDictation(id)).content;
 
   if (oldDictationContent !== content) {
     deleteAudioFromGCS(id);
