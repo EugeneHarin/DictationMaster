@@ -5,6 +5,10 @@ import { useFormState, useFormStatus } from "react-dom";
 import { Button } from "../../Button";
 import { validateDictation } from "@/app/lib/dictation-functions/validation";
 import DictationAudio from "../DictationAudio";
+import { FormEvent, useState } from "react";
+import { DictationValidationResult } from "@/app/lib/definitions";
+import { useRouter } from 'next/navigation'
+import LoadingBox from "../../LoadingBox";
 
 export function WriteDictationForm({
   dictationId,
@@ -13,12 +17,30 @@ export function WriteDictationForm({
   dictationId: string;
   audioFileUrl: string;
 }){
-  const initialState = { isValidated: false, errorsCount: null, message: null };
-  const validateDictationWithId = validateDictation.bind(null, dictationId);
-  const [validatedDictationData, dispatch] = useFormState(validateDictationWithId, initialState);
+  const router = useRouter();
+  const [submitButtonDisabledState, setSubmitButtonDisabledState] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  return(
-    <form action={dispatch} className="rounded-md bg-gray-50 flex flex-col gap-6">
+  function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (false == submitButtonDisabledState) {
+      const formData = new FormData(event.currentTarget);
+      const textareaValue = formData.get('content') as string;
+      setSubmitButtonDisabledState(true);
+      setLoading(true);
+      validateDictation(dictationId, textareaValue, afterValidation);
+    }
+  }
+
+  const afterValidation = () => {
+    setLoading(false);
+    router.push(`dashboard/dictations/${dictationId}/result`);
+  }
+
+  if (loading) return (<LoadingBox />)
+  else return(
+    <form onSubmit={handleFormSubmit} className="rounded-md bg-gray-50 flex flex-col gap-6">
 
       <div>
         <div className="mb-2 block text-sm font-medium">
@@ -46,18 +68,10 @@ export function WriteDictationForm({
         </div>
       </div>
 
-      <SubmitButton />
+      <Button type="submit" className="max-w-full w-32 flex justify-center" aria-disabled={submitButtonDisabledState}>
+        Submit <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+      </Button>
 
     </form>
-  );
-}
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button type="submit" className="max-w-full w-32 flex justify-center" aria-disabled={pending}>
-      Submit <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
-    </Button>
   );
 }

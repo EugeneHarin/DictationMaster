@@ -38,3 +38,10 @@ export type AudioFileDataField = {
   audio_file_url: string | null;
   audio_file_exp_date: string | null;
 }
+
+export type DictationValidationResult = {
+  position: number;
+  expectedLetter: string;
+  receivedLetter: string;
+  inWord: string;
+}

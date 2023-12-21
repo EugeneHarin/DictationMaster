@@ -2,7 +2,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   url: string | undefined;
 }
 
-export default async function DictationAudio({ url, className, ...rest }: ButtonProps) {
+export default function DictationAudio({ url, className, ...rest }: ButtonProps) {
   if (url !== undefined) {
     return (
       <audio className="mt-2" controls>
