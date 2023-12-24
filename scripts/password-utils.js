@@ -1,20 +1,19 @@
-const crypto = require('crypto');
-const scrypt = require('scrypt-js');
+const { scryptSync, randomBytes, timingSafeEqual } = require('crypto');
 
 const hashPassword = (password) => {
-  const salt = crypto.randomBytes(16);
-  const passwordBuffer = Buffer.from(password);
-  const key = scrypt.syncScrypt(passwordBuffer, salt, 16384, 8, 1, 64);
-  const hash = `${salt.toString('hex')}:${Buffer.from(key).toString('hex')}`; // Convert salt to hex
+  const salt = randomBytes(16).toString('hex');
+  const hashedPassword = scryptSync(password, salt, 64, { N: 16384, r: 8, p: 1 }).toString('hex');
+  const hash = `${salt}:${hashedPassword}`;
   return hash;
 }
 
-const verifyPassword = (inputPassword, storedHash) => {
-  const [saltHex, key] = storedHash.split(':');
-  const saltBuffer = Buffer.from(saltHex, 'hex'); // Convert hex back to Buffer
-  const passwordBuffer = Buffer.from(inputPassword);
-  const inputKey = scrypt.syncScrypt(passwordBuffer, saltBuffer, 16384, 8, 1, 64);
-  return key === Buffer.from(inputKey).toString('hex');
+const verifyPassword = (inputPassword, storedPassword) => {
+  const [salt, key] = storedPassword.split(':');
+  const hashedBuffer = scryptSync(inputPassword, salt, 64, { N: 16384, r: 8, p: 1 }).toString('hex');
+  const keyBuffer = Buffer.from(key, 'hex');
+  const match = timingSafeEqual(Buffer.from(hashedBuffer, 'hex'), Buffer.from(keyBuffer, 'hex'));
+  if (match) return true;
+  else return false;
 }
 
 module.exports = {
