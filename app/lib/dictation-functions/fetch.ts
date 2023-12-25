@@ -1,9 +1,9 @@
 import { sql } from '@vercel/postgres';
 import { unstable_noStore as noStore } from 'next/cache';
 import {
-  DictationsTable,
+  Dictation,
   DictationForm,
-  UsersTable,
+  User,
   DictationWithTeacher,
 } from '../definitions';
 
@@ -14,11 +14,13 @@ export async function fetchDictationWithTeacher(id: string) {
     const dictations = await sql<DictationWithTeacher>`
       SELECT
         dictations.*,
-        teachers.name,
-        teachers.image_url
+        users.name,
+        users.image_url
       FROM dictations
-      JOIN teachers ON dictations.teacher_id = teachers.id
-      WHERE dictations.id = ${id}
+      JOIN users ON dictations.teacher_id = users.id
+      WHERE
+        dictations.id = ${id} AND
+        users.role = 'teacher'
     `;
 
     return dictations.rows[0];
@@ -35,7 +37,7 @@ export async function fetchFilteredDictations(
   noStore();
   const offset = (currentPage - 1) * DICTATIONS_PER_PAGE;
 
-  type FilteredDictations = DictationsTable & Pick<UsersTable, 'name' | 'image_url'>;
+  type FilteredDictations = Dictation & Pick<User, 'name' | 'image_url'>;
 
   try {
     const dictations = await sql<FilteredDictations>`
@@ -46,15 +48,17 @@ export async function fetchFilteredDictations(
         dictations.words_count,
         dictations.status,
         dictations.date,
-        teachers.name,
-        teachers.image_url
+        users.name,
+        users.image_url
       FROM dictations
-      JOIN teachers ON dictations.teacher_id = teachers.id
+      JOIN users ON dictations.teacher_id = users.id
       WHERE
-        teachers.name ILIKE ${`%${query}%`} OR
-        dictations.title ILIKE ${`%${query}%`} OR
-        dictations.words_count::text ILIKE ${`%${query}%`} OR
-        dictations.status ILIKE ${`%${query}%`}
+        users.role = 'teacher' AND (
+          users.name ILIKE ${`%${query}%`} OR
+          dictations.title ILIKE ${`%${query}%`} OR
+          dictations.words_count::text ILIKE ${`%${query}%`} OR
+          dictations.status ILIKE ${`%${query}%`}
+        )
       ORDER BY dictations.date DESC
       LIMIT ${DICTATIONS_PER_PAGE} OFFSET ${offset}
     `;
@@ -71,18 +75,21 @@ export async function fetchDictationsPages(query: string) {
   try {
     const count = await sql`
       SELECT COUNT(*)
-      FROM dictations JOIN teachers ON teachers.id = dictations.teacher_id
+      FROM dictations JOIN users ON users.id = dictations.teacher_id
       WHERE
-        teachers.name ILIKE ${`%${query}%`} OR
-        dictations.title ILIKE ${`%${query}%`} OR
-        dictations.words_count::text ILIKE ${`%${query}%`} OR
-        dictations.status ILIKE ${`%${query}%`}
+        users.role = 'teacher' AND (
+          users.name ILIKE ${`%${query}%`} OR
+          dictations.title ILIKE ${`%${query}%`} OR
+          dictations.words_count::text ILIKE ${`%${query}%`} OR
+          dictations.status ILIKE ${`%${query}%`}
+        )
     `;
     const totalPages = Math.ceil(Number(count.rows[0].count) / DICTATIONS_PER_PAGE);
     return totalPages;
   } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of dictations');
+    throw new Error(`Failed to fetch total number of dictations`, {
+      cause: error
+    });
   }
 }
 

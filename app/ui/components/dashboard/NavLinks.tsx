@@ -4,6 +4,7 @@ import {
   UserGroupIcon,
   HomeIcon,
   DocumentDuplicateIcon,
+  AcademicCapIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -39,7 +40,7 @@ const links: LinksList[] = [
     href: '/dashboard/students',
     icon: UserGroupIcon,
     roles: ['teacher'],
-  },
+  }
 ];
 
 export default function NavLinks() {

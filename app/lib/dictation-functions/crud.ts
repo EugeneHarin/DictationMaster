@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { deleteAudioFromGCS } from "../google-cloud-actions";
 import { deleteCachedAudioUrl } from "../cache";
-import { DictationsTable } from "../definitions";
+import { Dictation } from "../definitions";
 
 export type State = {
   errors?: {
@@ -90,7 +90,7 @@ export async function getDictation(id: string) {
       FROM dictations
       WHERE dictations.id = ${id}
     `;
-    const dictation = data.rows[0] as DictationsTable;
+    const dictation = data.rows[0] as Dictation;
     return dictation;
 
   } catch (error: any) {

@@ -4,9 +4,10 @@ export type User = {
   email: string;
   password: string;
   role: 'teacher' | 'student';
+  image_url: string | null;
 };
 
-export type DictationsTable = {
+export type Dictation = {
   id: string;
   teacher_id: string;
   title: string;
@@ -17,16 +18,9 @@ export type DictationsTable = {
   status: 'draft' | 'published';
   date: string;
 };
-export type DictationWithTeacher = DictationsTable & Pick<UsersTable, 'name' | 'image_url'>;
+export type DictationWithTeacher = Dictation & Pick<User, 'name' | 'image_url'>;
 
-export type UsersTable = {
-  id: string;
-  name: string;
-  email: string;
-  image_url: string | null;
-};
-
-export type ResultsTable = {
+export type Result = {
   id: string;
   student_id: string;
   dictation_id: string;
