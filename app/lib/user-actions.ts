@@ -43,6 +43,12 @@ export async function getCurrentUserRole() {
   return userRole;
 }
 
+export async function getCurrentUserData() {
+  const session = await auth();
+  const userData: User = session?.user;
+  return userData;
+}
+
 export async function authenticateWithGithub() {
   try {
     await signIn('github');

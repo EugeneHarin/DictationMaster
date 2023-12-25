@@ -5,7 +5,7 @@ export type State = {
   message?: string | null;
 };
 
-export async function validateDictation(dictationId: string, userInput: string, callback: (html: string, errors: DiffMatchPatch.Diff[]) => void | undefined = (data) => {}) {
+export async function validateDictation(dictationId: string, userInput: string, callback: (html: string, errors: DiffMatchPatch.Diff[], resultId: string) => void | undefined = (data) => {}) {
   const body = {
     dictationId: dictationId,
     userInput: userInput,
@@ -20,12 +20,14 @@ export async function validateDictation(dictationId: string, userInput: string, 
     })
       .then(response => response.json())
       .then(
-        ({html, errors}: {
+        ({html, errors, resultId}: {
           html: string,
-          errors: DiffMatchPatch.Diff[]
+          errors: DiffMatchPatch.Diff[],
+          resultId: string
         }) => {
-          callback(html, errors);
-          return ({ html, errors });
+          console.log(resultId);
+          callback(html, errors, resultId);
+          return ({ html, errors, resultId });
         })
   } catch (error) {
     throw new Error(`Failed to validate dictation: ${error}`);

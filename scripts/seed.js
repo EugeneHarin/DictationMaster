@@ -143,6 +143,34 @@ async function dropAllTables(client) {
   }
 }
 
+
+async function seedResults(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+
+    // Create the "results" table if it doesn't exist
+    const createTable = await client.sql`
+      CREATE TABLE IF NOT EXISTS results (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        student_id UUID REFERENCES users(id) NOT NULL,
+        dictation_id UUID REFERENCES dictations(id) NOT NULL,
+        result_errors JSONB,
+        result_html VARCHAR(3000) NOT NULL,
+        date DATE NOT NULL
+      );
+    `;
+
+    console.log(`Created "results" table`);
+
+    return {
+      createTable
+    };
+  } catch (error) {
+    console.error('Error seeding results:', error);
+    throw error;
+  }
+}
+
 async function main() {
   const client = await db.connect();
 
@@ -150,6 +178,7 @@ async function main() {
   await seedUsers(client);
   await seedTeachers(client);
   await seedDictations(client);
+  await seedResults(client);
 
   await client.end();
 }

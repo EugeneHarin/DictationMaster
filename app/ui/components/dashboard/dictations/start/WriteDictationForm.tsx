@@ -5,8 +5,7 @@ import { Button } from "../../Button";
 import DictationAudio from "../DictationAudio";
 import { FormEvent, useState } from "react";
 import { useRouter } from 'next/navigation'
-import LoadingBox from "../../LoadingBox";
-import { validateDictation } from "@/app/lib/dictation-functions/validation";
+import { validateDictation } from "@/app/lib/result-functions/validation";
 import type DiffMatchPatch from 'diff-match-patch';
 
 export function WriteDictationForm({
@@ -40,11 +39,9 @@ export function WriteDictationForm({
     }
   }
 
-  function afterValidation (html: string, errors: DiffMatchPatch.Diff[]) {
+  function afterValidation (resultHtml: string, resultErrors: DiffMatchPatch.Diff[], resultId: string) {
+    setResult(resultHtml);
     setLoading(false);
-    console.log(html);
-    console.log(errors);
-    setResult(html);
     // router.push(`result`);
   }
 

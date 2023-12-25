@@ -26,6 +26,15 @@ export type TeachersTable = {
   image_url: string | null;
 };
 
+export type ResultsTable = {
+  id: string;
+  student_id: string;
+  dictation_id: string;
+  result_errors: JSON;
+  result_html: string;
+  date: string;
+};
+
 export type DictationForm = {
   id: string;
   teacher_id: string;

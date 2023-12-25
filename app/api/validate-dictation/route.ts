@@ -1,6 +1,7 @@
 import { getDictation } from "@/app/lib/dictation-functions/crud";
 import { NextRequest, NextResponse } from 'next/server';
 import DiffMatchPatch from 'diff-match-patch';
+import { createDictationResult } from "@/app/lib/result-functions/crud";
 
 export async function POST(request: NextRequest) {
   const data = await request.json();
@@ -14,5 +15,7 @@ export async function POST(request: NextRequest) {
   const verificationErrors = dmp.diff_main(originalText, userInput);
   const verificatedTextHtml = dmp.diff_prettyHtml(verificationErrors);
 
-  return NextResponse.json({ html: verificatedTextHtml, errors: verificationErrors }, { status: 200 });
+  const resultId = await createDictationResult(dictationId, verificationErrors, verificatedTextHtml);
+
+  return NextResponse.json({ html: verificatedTextHtml, errors: verificationErrors, resultId: resultId }, { status: 200 });
 }
