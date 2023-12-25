@@ -17,9 +17,9 @@ export type DictationsTable = {
   status: 'draft' | 'published';
   date: string;
 };
-export type DictationWithTeacher = DictationsTable & Pick<TeachersTable, 'name' | 'image_url'>;
+export type DictationWithTeacher = DictationsTable & Pick<UsersTable, 'name' | 'image_url'>;
 
-export type TeachersTable = {
+export type UsersTable = {
   id: string;
   name: string;
   email: string;

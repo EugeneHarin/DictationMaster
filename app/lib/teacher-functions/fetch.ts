@@ -1,11 +1,11 @@
 import { sql } from '@vercel/postgres';
 import { unstable_noStore as noStore } from 'next/cache';
-import { TeachersTable } from '../definitions';
+import { UsersTable } from '../definitions';
 
 export async function fetchAllTeachers() {
   noStore();
   try {
-    const data = await sql<Pick<TeachersTable, 'id' | 'name'>>`
+    const data = await sql<Pick<UsersTable, 'id' | 'name'>>`
       SELECT
         id,
         name
