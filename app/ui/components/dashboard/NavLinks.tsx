@@ -40,7 +40,13 @@ const links: LinksList[] = [
     href: '/dashboard/students',
     icon: UserGroupIcon,
     roles: ['teacher'],
-  }
+  },
+  {
+    name: 'Results',
+    href: '/dashboard/results',
+    icon: AcademicCapIcon,
+    roles: ['teacher', 'student'],
+  },
 ];
 
 export default function NavLinks() {

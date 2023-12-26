@@ -19,7 +19,6 @@ export function WriteDictationForm({
   const [submitButtonDisabledState, setSubmitButtonDisabledState] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [result, setResult] = useState('');
   const [textareaDisabledState, setTextareaDisabledState] = useState(false);
 
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
@@ -40,9 +39,8 @@ export function WriteDictationForm({
   }
 
   function afterValidation (resultHtml: string, resultErrors: DiffMatchPatch.Diff[], resultId: string) {
-    setResult(resultHtml);
     setLoading(false);
-    // router.push(`result`);
+    router.push(`/dashboard/results/${resultId}`);
   }
 
   return(
@@ -75,7 +73,6 @@ export function WriteDictationForm({
           </div>
         </div>
         <div className="mt-2 text-red-500">{errorMessage}</div>
-        <div className="mt-2" dangerouslySetInnerHTML={{__html: result}}></div>
       </div>
 
       <Button type="submit" className="max-w-full w-32 flex justify-center" aria-disabled={submitButtonDisabledState}>

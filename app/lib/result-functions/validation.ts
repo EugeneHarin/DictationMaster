@@ -25,7 +25,6 @@ export async function validateDictation(dictationId: string, userInput: string, 
           errors: DiffMatchPatch.Diff[],
           resultId: string
         }) => {
-          console.log(resultId);
           callback(html, errors, resultId);
           return ({ html, errors, resultId });
         })

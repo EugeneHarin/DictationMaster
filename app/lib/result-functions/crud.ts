@@ -2,7 +2,7 @@ import { sql } from "@vercel/postgres";
 import type DiffMatchPatch from 'diff-match-patch';
 import { revalidatePath } from "next/cache";
 import { getCurrentUserData } from "../user-actions";
-import { ResultsTable } from "../definitions";
+import { DictationResult } from "../definitions";
 
 export async function createDictationResult(dictationId: string, resultErrors: DiffMatchPatch.Diff[], resultHtml: string) {
   const date = new Date().toISOString();
@@ -38,7 +38,7 @@ export async function getDictationResult(dictationId: string, studentId: string)
         result.dictation_id = ${dictationId} AND
         result.student_id = ${studentId};
     `;
-    const results = data.rows as ResultsTable[];
+    const results = data.rows as DictationResult[];
     return results;
 
   } catch (error: any) {

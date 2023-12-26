@@ -20,14 +20,29 @@ export type Dictation = {
 };
 export type DictationWithTeacher = Dictation & Pick<User, 'name' | 'image_url'>;
 
-export type Result = {
+export type DictationResult = {
   id: string;
   student_id: string;
   dictation_id: string;
-  result_errors: JSON;
+  result_errors: Array<[Number, string]>;
   result_html: string;
   date: string;
 };
+
+export type DictationResultAllData = {
+  result_id: DictationResult['id'];
+  student_id: DictationResult['student_id'];
+  dictation_id: DictationResult['dictation_id'];
+  result_errors: DictationResult['result_errors'];
+  result_html: DictationResult['result_html'];
+  result_date: DictationResult['date'];
+  dictation_title: Dictation['title'],
+  dictation_content: Dictation['content'],
+  dictation_status: Dictation['status'],
+  student_name: User['name'],
+  user_email: User['email'],
+  user_image_url: User['image_url'],
+}
 
 export type DictationForm = {
   id: string;
