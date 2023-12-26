@@ -2,7 +2,6 @@ import { sql } from '@vercel/postgres';
 import { unstable_noStore as noStore } from 'next/cache';
 import {
   Dictation,
-  DictationForm,
   User,
   DictationWithTeacher,
 } from '../definitions';
@@ -90,26 +89,5 @@ export async function fetchDictationsPages(query: string) {
     throw new Error(`Failed to fetch total number of dictations`, {
       cause: error
     });
-  }
-}
-
-export async function fetchDictationById(id: string) {
-  noStore();
-  try {
-    const dictation = await sql<DictationForm>`
-      SELECT
-        dictations.id,
-        dictations.teacher_id,
-        dictations.title,
-        dictations.content,
-        dictations.status
-      FROM dictations
-      WHERE dictations.id = ${id};
-    `;
-
-    return dictation.rows[0];
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch dictation.');
   }
 }

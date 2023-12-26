@@ -1,5 +1,7 @@
 import type DiffMatchPatch from 'diff-match-patch';
 
+export const LANGUAGE_CODES = ['en-US', 'uk-UA'] as const;
+
 export type User = {
   id: string;
   name: string;
@@ -13,6 +15,7 @@ export type Dictation = {
   id: string;
   teacher_id: string;
   title: string;
+  language_code: typeof LANGUAGE_CODES[number];
   content: string
   words_count: number;
   audio_file_url: string | null;
@@ -39,20 +42,13 @@ export type DictationResultAllData = {
   errors_count: DictationResult['errors_count'];
   result_date: DictationResult['date'];
   dictation_title: Dictation['title'],
+  language_code: Dictation['language_code'];
   dictation_content: Dictation['content'],
   dictation_status: Dictation['status'],
   student_name: User['name'],
   user_email: User['email'],
   user_image_url: User['image_url'],
 }
-
-export type DictationForm = {
-  id: string;
-  teacher_id: string;
-  title: string;
-  content: string;
-  status: 'draft' | 'published';
-};
 
 export type AudioFileDataField = {
   audio_file_url: string | null;

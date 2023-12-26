@@ -16,6 +16,7 @@ export default async function fetchResultData(resultId: string) {
         results.errors_count,
         results.date AS result_date,
         dictations.title AS dictation_title,
+        dictations.language_code,
         dictations.content AS dictation_content,
         dictations.status AS dictation_status,
         users.name AS student_name,

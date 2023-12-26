@@ -14,7 +14,7 @@ export default async function ViewDictationForm({
   dictationWithTeacher: DictationWithTeacher,
 }) {
   const role = await getCurrentUserRole();
-  const audioUrl = await retrieveAudioFileUrl(dictationWithTeacher.id, dictationWithTeacher.content);
+  const audioUrl = await retrieveAudioFileUrl(dictationWithTeacher.id, dictationWithTeacher.language_code, dictationWithTeacher.content);
 
   return (
     <div className="rounded-md bg-gray-50 p-4 md:p-6 flex flex-col gap-6">
@@ -50,7 +50,7 @@ export default async function ViewDictationForm({
             Dictation content
           </div>
           <div className="relative mt-2 rounded-md">
-            <div className="block w-full rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500">
+            <div className="block w-full rounded-md border border-gray-200 py-2 px-4 text-sm outline-2 placeholder:text-gray-500">
               {dictationWithTeacher.content}
             </div>
           </div>

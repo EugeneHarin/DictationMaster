@@ -16,7 +16,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   const resultId = params.id;
   const dictationResultData = await fetchResultData(resultId);
   if (!dictationResultData) notFound();
-  const audioUrl = await retrieveAudioFileUrl(dictationResultData.dictation_id, dictationResultData.dictation_content);
+  const audioUrl = await retrieveAudioFileUrl(dictationResultData.dictation_id, dictationResultData.language_code, dictationResultData.dictation_content);
   const resultWithErrorsHtml = getResultErrorsHtml(dictationResultData.result_errors);
 
   return (

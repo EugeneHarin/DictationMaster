@@ -2,8 +2,9 @@
 
 // Initialize Google Cloud Storage Bucket
 import { Storage } from '@google-cloud/storage'
-import { TextToSpeechClient, protos } from '@google-cloud/text-to-speech';
-import { DictationForm } from "./definitions";
+import { TextToSpeechClient } from '@google-cloud/text-to-speech';
+import type { protos } from '@google-cloud/text-to-speech';
+import { Dictation } from "./definitions";
 import { getCachedAudioUrl, setCachedAudioUrl } from "./cache";
 
 // GCS - Google Cloud Storage
@@ -68,22 +69,22 @@ async function getCachedSignedUrl(id: string) {
   return newUrl;
 }
 
-async function convertTextToSpeech(text: string) {
+async function convertTextToSpeech(text: string, languageCode: string) {
   try {
+    const voice: protos.google.cloud.texttospeech.v1.IVoiceSelectionParams = languageCode == 'uk-UA' ? {
+      languageCode: 'uk-UA',
+      ssmlGender: 'FEMALE',
+      name: 'uk-UA-Standard-A'
+    } : {
+      languageCode: 'en-US',
+      ssmlGender: 'FEMALE',
+      name: 'en-US-Neural2-H'
+    };
     const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
       input: {
         text: text
       },
-      voice: {
-        languageCode: 'en-US',
-        ssmlGender: 'FEMALE',
-        name: 'en-US-Neural2-H'
-      },
-      // voice: {
-      //   languageCode: 'uk-UA',
-      //   ssmlGender: 'FEMALE',
-      //   name: 'uk-UA-Standard-A'
-      // },
+      voice: voice,
       audioConfig: {
         audioEncoding: 'MP3',
         speakingRate: .90,
@@ -138,7 +139,7 @@ async function uploadAudioToGCS(audioContent: Buffer, id: string) {
  * @returns audiofile url
  * @returns undefined
  */
-export async function retrieveAudioFileUrl(id: string, text: string | undefined) {
+export async function retrieveAudioFileUrl(id: string, languageCode: Dictation['language_code'], text: string | undefined) {
 
   const existingFileUrl = await getCachedSignedUrl(id);
 
@@ -147,7 +148,7 @@ export async function retrieveAudioFileUrl(id: string, text: string | undefined)
   if (!text) return undefined;
 
   // If file doesn't exist in cache or GCS then we generate and upload a new one
-  const audioFileContent = await convertTextToSpeech(text);
+  const audioFileContent = await convertTextToSpeech(text, languageCode);
 
   if (undefined !== audioFileContent) await uploadAudioToGCS(audioFileContent, id);
   else return undefined;

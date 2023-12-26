@@ -53,10 +53,11 @@ async function seedDictations(client) {
 
     // Create the "dictations" table if it doesn't exist
     const createTable = await client.sql`
-        CREATE TABLE IF NOT EXISTS dictations (
+      CREATE TABLE IF NOT EXISTS dictations (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         teacher_id UUID REFERENCES users(id) NOT NULL,
         title VARCHAR(255) NOT NULL,
+        language_code VARCHAR(20) CHECK (language_code IN ('en-US', 'uk-UA')) NOT NULL,
         content VARCHAR(3000) NOT NULL,
         words_count INT NOT NULL,
         audio_file_url VARCHAR(1600),
@@ -72,8 +73,8 @@ async function seedDictations(client) {
     const insertedDictations = await Promise.all(
       dictations.map(
         (dictation) => client.sql`
-        INSERT INTO dictations (teacher_id, title, content, words_count, status, date)
-        VALUES (${dictation.teacher_id}, ${dictation.title}, ${dictation.content}, ${dictation.words_count}, ${dictation.status}, ${dictation.date})
+        INSERT INTO dictations (teacher_id, title, language_code, content, words_count, status, date)
+        VALUES (${dictation.teacher_id}, ${dictation.title}, ${dictation.language_code}, ${dictation.content}, ${dictation.words_count}, ${dictation.status}, ${dictation.date})
         ON CONFLICT (id) DO NOTHING;
       `,
       ),

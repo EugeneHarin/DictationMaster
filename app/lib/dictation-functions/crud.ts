@@ -6,12 +6,13 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { deleteAudioFromGCS } from "../google-cloud-actions";
 import { deleteCachedAudioUrl } from "../cache";
-import { Dictation } from "../definitions";
+import { Dictation, LANGUAGE_CODES } from "../definitions";
 
 export type State = {
   errors?: {
     teacherId?: string[];
     title?: string[];
+    language_code?: string[];
     content?: string[];
     status?: string[];
     databaseError?: string[];
@@ -39,6 +40,10 @@ const FormSchema = z.object({
     .enum(['draft', 'published'], {
       invalid_type_error: 'Please select an dictation status.',
     }),
+  language_code: z
+    .enum(LANGUAGE_CODES, {
+      invalid_type_error: 'Please select the language code.',
+    }),
   date: z
     .string(),
 });
@@ -50,6 +55,7 @@ export async function createDictation(prevState: State, formData: FormData) {
   const validatedFields = CreateDictation.safeParse({
     teacherId: formData.get('teacherId'),
     title: formData.get('title'),
+    language_code: formData.get('language_code'),
     content: formData.get('content'),
     status: formData.get('status'),
   });
@@ -61,14 +67,20 @@ export async function createDictation(prevState: State, formData: FormData) {
     }
   }
 
-  const { teacherId, title, content, status } = validatedFields.data;
-  const wordsCount = content.match(/\b\w+\b/g)?.length || 0;
+  const { teacherId, title, language_code, content, status } = validatedFields.data;
   const date = new Date().toISOString();
+
+  let wordsCount = 0;
+  if (language_code == 'en-US') {
+    wordsCount = content.match(/\b\w+\b/g)?.length || 0;
+  } else if (language_code == 'uk-UA') {
+    wordsCount = content.match(/[\u0400-\u04FF]+(?:['’-][\u0400-\u04FF]+)*/g)?.length || 0;
+  }
 
   try {
     sql`
-      INSERT INTO dictations(teacher_id, title, content, status, words_count, date)
-      VALUES (${teacherId},${title},${content},${status},${wordsCount},${date})
+      INSERT INTO dictations(teacher_id, title, language_code, content, status, words_count, date)
+      VALUES (${teacherId},${title},${language_code},${content},${status},${wordsCount},${date})
     `;
   } catch (error: any) {
     return {
@@ -103,6 +115,7 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
   const validatedFields = UpdateDictation.safeParse({
     teacherId: formData?.get('teacherId'),
     title: formData?.get('title'),
+    language_code: formData.get('language_code'),
     content: formData?.get('content'),
     status: formData?.get('status'),
   });
@@ -113,9 +126,15 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
       message: 'Missing Fields. Failed to Update Dictation.',
     };
   }
-  const { teacherId, title, content, status } = validatedFields.data;
-  const wordsCount = content.match(/\b\w+\b/g)?.length || 0;
-  const oldDictationContent = (await getDictation(id)).content;
+  const { teacherId, title, language_code, content, status } = validatedFields.data;
+  const { content: oldDictationContent, language_code: oldDictationLanguageCode } = (await getDictation(id));
+
+  let wordsCount = 0;
+  if (language_code == 'en-US') {
+    wordsCount = content.match(/\b\w+\b/g)?.length || 0;
+  } else if (language_code == 'uk-UA') {
+    wordsCount = content.match(/[\u0400-\u04FF]+(?:['’-][\u0400-\u04FF]+)*/g)?.length || 0;
+  }
 
   try {
     await sql`
@@ -124,7 +143,8 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
       title = ${title},
       content = ${content},
       status = ${status},
-      words_count = ${wordsCount}
+      words_count = ${wordsCount},
+      language_code = ${language_code}
       WHERE id = ${id}
     `;
   } catch (error: any) {
@@ -136,7 +156,7 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
     };
   }
 
-  if (oldDictationContent !== content) {
+  if (oldDictationContent !== content || oldDictationLanguageCode !== language_code) {
     deleteAudioFromGCS(id);
     deleteCachedAudioUrl(id);
   }
