@@ -25,6 +25,7 @@ export type DictationResult = {
   student_id: string;
   dictation_id: string;
   result_errors: Array<[Number, string]>;
+  errors_number: number;
   result_html: string;
   date: string;
 };

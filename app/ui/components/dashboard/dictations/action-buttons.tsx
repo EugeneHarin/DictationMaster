@@ -39,6 +39,18 @@ export async function ViewDictation({ id }: { id: string }) {
   );
 }
 
+export async function ViewResult({ resultId }: { resultId: string }) {
+  const role = await getCurrentUserRole();
+  return (
+    <Link href={`/dashboard/results/${resultId}`}>
+      <Button>
+        View Result
+        <EyeIcon title="Start Dictation" className="w-5 ml-3" />
+      </Button>
+    </Link>
+  );
+}
+
 export async function UpdateDictation({ id }: { id: string }) {
   const role = await getCurrentUserRole();
   if (role == 'teacher') return (
