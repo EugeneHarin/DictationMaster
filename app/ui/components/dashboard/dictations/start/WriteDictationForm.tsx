@@ -38,7 +38,7 @@ export function WriteDictationForm({
     }
   }
 
-  function afterValidation (resultHtml: string, resultErrors: DiffMatchPatch.Diff[], resultId: string) {
+  function afterValidation (resultId: string) {
     setLoading(false);
     router.push(`/dashboard/results/${resultId}`);
   }

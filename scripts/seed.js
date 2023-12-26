@@ -116,8 +116,7 @@ async function seedResults(client) {
         student_id UUID REFERENCES users(id) NOT NULL,
         dictation_id UUID REFERENCES dictations(id) NOT NULL,
         result_errors JSONB,
-        errors_number NUMERIC(4, 0),
-        result_html VARCHAR(3000) NOT NULL,
+        errors_count NUMERIC(4, 0) NOT NULL,
         date DATE NOT NULL
       );
     `;

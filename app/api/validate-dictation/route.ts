@@ -4,18 +4,18 @@ import DiffMatchPatch from 'diff-match-patch';
 import { createDictationResult } from "@/app/lib/result-functions/crud";
 
 export async function POST(request: NextRequest) {
-  const data = await request.json();
-  const userInput = data.userInput;
-  const dictationId = data.dictationId;
-  if (!dictationId || !userInput) return NextResponse.json({ error: 'Error validating dictation' }, { status: 500 });
+  try {
+    const data = await request.json();
+    const userInput = data.userInput;
+    const dictationId = data.dictationId;
+    const originalText = (await getDictation(dictationId))?.content;
 
-  const originalText = (await getDictation(dictationId))?.content;
+    const dmp = new DiffMatchPatch();
+    const verificationErrors = dmp.diff_main(originalText, userInput);
+    const resultId = await createDictationResult(dictationId, verificationErrors);
 
-  const dmp = new DiffMatchPatch();
-  const verificationErrors = dmp.diff_main(originalText, userInput);
-  const verificatedTextHtml = dmp.diff_prettyHtml(verificationErrors);
-
-  const resultId = await createDictationResult(dictationId, verificationErrors, verificatedTextHtml);
-
-  return NextResponse.json({ html: verificatedTextHtml, errors: verificationErrors, resultId: resultId }, { status: 200 });
+    return NextResponse.json({ resultId: resultId }, { status: 200 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: 'Error validating dictation.', cause: error }, { status: 500 });
+  }
 }

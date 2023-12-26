@@ -1,3 +1,5 @@
+import type DiffMatchPatch from 'diff-match-patch';
+
 export type User = {
   id: string;
   name: string;
@@ -24,9 +26,8 @@ export type DictationResult = {
   id: string;
   student_id: string;
   dictation_id: string;
-  result_errors: Array<[Number, string]>;
-  errors_number: number;
-  result_html: string;
+  result_errors: DiffMatchPatch.Diff[];
+  errors_count: number;
   date: string;
 };
 
@@ -35,7 +36,7 @@ export type DictationResultAllData = {
   student_id: DictationResult['student_id'];
   dictation_id: DictationResult['dictation_id'];
   result_errors: DictationResult['result_errors'];
-  result_html: DictationResult['result_html'];
+  errors_count: DictationResult['errors_count'];
   result_date: DictationResult['date'];
   dictation_title: Dictation['title'],
   dictation_content: Dictation['content'],

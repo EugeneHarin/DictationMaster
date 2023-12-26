@@ -1,3 +1,16 @@
+import type DiffMatchPatch from 'diff-match-patch';
+
+export const getResultErrorsHtml = (errorsArray: DiffMatchPatch.Diff[]) => {
+  let resultHtml = '';
+  errorsArray.map(([number, text]) => {
+    if (number == 0) resultHtml += `<span>${text}</span>`;
+    else if (number > 0) resultHtml += `<ins class="bg-green-200">${text}</ins>`;
+    else resultHtml += `<del class="bg-red-200">${text}</del>`
+  });
+
+  return resultHtml
+}
+
 export const formatDateToLocal = (
   dateStr: string,
   locale: string = 'en-US',

@@ -1,5 +1,6 @@
 import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-actions";
 import fetchResultData from "@/app/lib/result-functions/fetch";
+import { getResultErrorsHtml } from "@/app/lib/utils";
 import Breadcrumbs from '@/app/ui/components/dashboard/Breadcrumbs';
 import DictationAudio from "@/app/ui/components/dashboard/dictations/DictationAudio";
 import { DocumentTextIcon, UserCircleIcon } from "@heroicons/react/24/outline";
@@ -16,7 +17,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   const dictationResultData = await fetchResultData(resultId);
   if (!dictationResultData) notFound();
   const audioUrl = await retrieveAudioFileUrl(dictationResultData.dictation_id, dictationResultData.dictation_content);
-  const errorsNumber = Math.floor(dictationResultData.result_errors.length / 3);
+  const resultWithErrorsHtml = getResultErrorsHtml(dictationResultData.result_errors);
 
   return (
     <main>
@@ -86,15 +87,15 @@ export default async function Page({ params }: { params: { id: string } }) {
             Your input
           </div>
           <div className="relative mt-2 rounded-md">
-            <div className="peer w-full rounded-md border border-gray-200 p-4 text-base outline-2 placeholder:text-gray-500" dangerouslySetInnerHTML={{__html: dictationResultData.result_html}}></div>
+            <div className="peer w-full rounded-md border border-gray-200 p-4 text-base outline-2 placeholder:text-gray-500" dangerouslySetInnerHTML={{__html: resultWithErrorsHtml}}></div>
           </div>
         </div>
 
         {/* User Errors Number */}
         <div>
-          {errorsNumber > 0 ?
+          {dictationResultData.errors_count > 0 ?
             <div className="py-2 px-4 rounded-full bg-red-200 text-base font-medium inline-block">
-              You have <span className="bg-red-500 text-white px-1.5">{errorsNumber}</span> errors
+              You have <span className="bg-red-500 text-white px-1.5">{dictationResultData.errors_count}</span> errors
             </div>
           :
             <div className="py-2 px-4 rounded-full bg-green-200 inline-block">

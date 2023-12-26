@@ -13,7 +13,7 @@ export default async function fetchResultData(resultId: string) {
         results.student_id,
         results.dictation_id,
         results.result_errors::json,
-        results.result_html,
+        results.errors_count,
         results.date AS result_date,
         dictations.title AS dictation_title,
         dictations.content AS dictation_content,
@@ -70,7 +70,7 @@ export async function fetchFilteredResultsData(
     dictation_title: Dictation['title'];
     words_count: Dictation['words_count'];
     result_date: DictationResult['date'];
-    errors_number: DictationResult['errors_number'];
+    errors_count: DictationResult['errors_count'];
   };
 
   try {
@@ -82,7 +82,8 @@ export async function fetchFilteredResultsData(
         dictations.title AS dictation_title,
         dictations.words_count,
         results.date AS result_date,
-        results.result_errors
+        results.result_errors,
+        results.errors_count
       FROM results
       JOIN users ON results.student_id = users.id
       JOIN dictations ON results.dictation_id = dictations.id
