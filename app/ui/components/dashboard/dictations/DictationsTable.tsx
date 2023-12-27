@@ -12,8 +12,8 @@ export default async function DictationsTable({
   query: string;
   currentPage: number;
 }) {
-  const dictations = await fetchFilteredDictations(query, currentPage);
   const userRole = await getCurrentUserRole();
+  const dictations = await (userRole == 'student' ? fetchFilteredDictations(query, currentPage, 'published') : fetchFilteredDictations(query, currentPage));
 
   return (
     <div className="mt-6 flow-root">

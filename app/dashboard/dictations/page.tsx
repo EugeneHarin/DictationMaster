@@ -7,6 +7,7 @@ import { DictationsTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
 import { fetchDictationsPages } from '@/app/lib/dictation-functions/fetch';
 import { Metadata } from 'next';
+import { getCurrentUserRole } from "@/app/lib/user-actions";
 
 export const metadata: Metadata = {
   title: 'Dictations',
@@ -20,9 +21,10 @@ export default async function Page({
     page?: string,
   };
 }) {
-  const query: string = searchParams?.query || '',
-        currentPage: number = Number(searchParams?.page) || 1,
-        totalPages: number = await fetchDictationsPages(query);
+  const query: string = searchParams?.query || '';
+  const currentPage: number = Number(searchParams?.page) || 1;
+  const userRole = await getCurrentUserRole();
+  const totalPages: number = await (userRole == 'student' ? fetchDictationsPages(query, 'published') : fetchDictationsPages(query));
 
   return (
     <div className="w-full">
