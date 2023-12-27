@@ -1,10 +1,7 @@
-import Image from 'next/image';
-import { UpdateDictation, DeleteDictation, ViewResult } from '@/app/ui/components/dashboard/dictations/action-buttons';
-import DictationStatus from '@/app/ui/components/dashboard/dictations/DictationStatus';
-import { formatDateToLocal, } from '@/app/lib/utils';
-import { fetchFilteredDictations } from '@/app/lib/dictation-functions/fetch';
-import { getCurrentUserRole } from "@/app/lib/user-actions";
 import { fetchFilteredResultsData } from "@/app/lib/result-functions/fetch";
+import { formatDateToLocal, } from '@/app/lib/utils';
+import { ViewResult } from '@/app/ui/components/dashboard/dictations/action-buttons';
+import Image from 'next/image';
 
 export default async function ResultsTable({
   query,
@@ -56,8 +53,6 @@ export default async function ResultsTable({
                   </div>
                   <div className="flex justify-end gap-2">
                     <ViewResult resultId={result.id} />
-                    <UpdateDictation id={result.id} />
-                    <DeleteDictation id={result.id} />
                   </div>
                 </div>
               </div>
@@ -121,8 +116,6 @@ export default async function ResultsTable({
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
                       <ViewResult resultId={result.id} />
-                      <UpdateDictation id={result.id} />
-                      <DeleteDictation id={result.id} />
                     </div>
                   </td>
                 </tr>

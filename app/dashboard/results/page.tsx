@@ -1,7 +1,6 @@
 import { fetchResultPages } from "@/app/lib/result-functions/fetch";
 import Breadcrumbs from "@/app/ui/components/dashboard/Breadcrumbs";
 import Search from "@/app/ui/components/dashboard/Search";
-import { CreateDictation } from "@/app/ui/components/dashboard/dictations/action-buttons";
 import Pagination from "@/app/ui/components/dashboard/dictations/pagination";
 import ResultsTable from "@/app/ui/components/dashboard/results/ResultsTable";
 import { lusitana } from "@/app/ui/fonts";
@@ -26,10 +25,12 @@ export default async function Page({
   const totalPages: number = await fetchResultPages(query);
 
   return (
-    <div className="w-full">
-      <div className="flex w-full items-center justify-between">
-        <h1 className={`${lusitana.className} text-2xl`}>Results</h1>
-      </div>
+    <main>
+      <Breadcrumbs
+        breadcrumbs={[
+          { label: 'Results', href: '/dashboard/results', active: true },
+        ]}
+      />
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <Search placeholder="Search dictations..." />
       </div>
@@ -39,6 +40,6 @@ export default async function Page({
       <div className="mt-5 flex w-full justify-center">
         <Pagination totalPages={totalPages} />
       </div>
-    </div>
+    </main>
   )
 }
