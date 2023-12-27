@@ -83,12 +83,8 @@ export async function createDictation(prevState: State, formData: FormData) {
       VALUES (${teacherId},${title},${language_code},${content},${status},${wordsCount},${date})
     `;
   } catch (error: any) {
-    return {
-      errors: {
-        databaseError: error.message
-      },
-      message: 'Database Error: Failed to Create Dictation.',
-    };
+    throw new Error('Error Creating dictation', {cause: error});
+
   }
 
   revalidatePath('/dashboard/dictations');
@@ -106,8 +102,7 @@ export async function getDictation(id: string) {
     return dictation;
 
   } catch (error: any) {
-    console.error(error);
-    throw error;
+    throw new Error('Error Getting dictation', {cause: error});
   }
 }
 
@@ -147,13 +142,8 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
       language_code = ${language_code}
       WHERE id = ${id}
     `;
-  } catch (error: any) {
-    return {
-      errors: {
-        databaseError: error.message
-      },
-      message: 'Database Error: Failed to Update Dictation.',
-    };
+  } catch (error: unknown) {
+    throw new Error('Error Updating dictation', {cause: error});
   }
 
   if (oldDictationContent !== content || oldDictationLanguageCode !== language_code) {
@@ -172,12 +162,7 @@ export async function deleteDictation(id: string) {
     deleteCachedAudioUrl(id);
     revalidatePath('/dashboard/dictations');
     return { message: 'Deleted Dictation.' };
-  } catch (error: any) {
-    return {
-      errors: {
-        databaseError: error.message
-      },
-      message: 'Database Error: Failed to Delete Dictation.',
-    };
+  } catch (error: unknown) {
+    throw new Error('Error Deleting dictation', {cause: error});
   }
 }

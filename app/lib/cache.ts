@@ -30,8 +30,7 @@ export async function getCachedAudioUrl(id: string) {
     const audioFileData = data.rows[0];
     return audioFileData;
   } catch (error) {
-    console.error('Failed to fetch cached audio URL:', error);
-    throw new Error('Failed to fetch cached audio URL');
+    throw new Error('Failed to fetch cached audio URL', {cause: error});
   }
 }
 
@@ -45,8 +44,7 @@ export async function setCachedAudioUrl(id: string, audioFileUrl: string, audioF
     `;
     return true;
   } catch (error) {
-    console.error('Failed to update cached audio URL:', error);
-    throw new Error('Failed to update cached audio URL');
+    throw new Error('Failed to update cached audio URL', {cause: error});
   }
 }
 
@@ -60,7 +58,6 @@ export async function deleteCachedAudioUrl(id: string) {
     `;
     return true;
   } catch (error) {
-    console.error('Failed to delete cached audio URL:', error);
-    throw new Error('Failed to delete cached audio URL');
+    throw new Error('Failed to delete cached audio URL', {cause: error});
   }
 }

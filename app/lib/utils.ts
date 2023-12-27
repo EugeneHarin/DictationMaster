@@ -57,3 +57,19 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
     totalPages,
   ];
 };
+
+export const convertAndRepeatSentences = (text: string, numberOfRepeats: number) => {
+  const sentenceRegex = /(?<=[.!?])\s/;
+  const sentences = text.split(sentenceRegex);
+
+  // Repeat each sentence the specified number of times, adding the break string between repetitions
+  const repeatedText = '<speak>' + sentences.map(sentence => {
+    let repeatedSentence = sentence.trim();
+    for (let i = 1; i < numberOfRepeats; i++) {
+      if (repeatedSentence.length > 20) repeatedSentence += '<break time="2s"/>' + sentence.trim();
+    }
+    return repeatedSentence;
+  }).join('<break time="3s"/>') + '</speak>';
+
+  return repeatedText;
+}

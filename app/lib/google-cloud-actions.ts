@@ -1,24 +1,37 @@
 'use server'
 
 // Initialize Google Cloud Storage Bucket
-import { Storage } from '@google-cloud/storage'
-import { TextToSpeechClient } from '@google-cloud/text-to-speech';
+import { Storage } from '@google-cloud/storage';
 import type { protos } from '@google-cloud/text-to-speech';
-import { Dictation } from "./definitions";
+import { TextToSpeechLongAudioSynthesizeClient } from '@google-cloud/text-to-speech';
 import { getCachedAudioUrl, setCachedAudioUrl } from "./cache";
+import { Dictation } from "./definitions";
+import { convertAndRepeatSentences } from "./utils";
 
 // GCS - Google Cloud Storage
 const googleApplicationCredentialsBase64 = process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64;
 const bucketName = process.env.GCS_BUCKET_NAME;
+const GCProjectNumber = process.env.GC_PROJECT_NUMBER;
 if (!googleApplicationCredentialsBase64) throw new Error('Error getting Google Application Credentials from .env');
 if (!bucketName) throw new Error('Error getting Google Storage bucket Name from .env');
 
 const serviceAccountKey = JSON.parse(Buffer.from(googleApplicationCredentialsBase64, 'base64').toString('ascii'));
 const storage = new Storage({ credentials: serviceAccountKey });
-const TTSClient = new TextToSpeechClient({ credentials: serviceAccountKey });
+const TTSLongAudioClient = new TextToSpeechLongAudioSynthesizeClient({ credentials: serviceAccountKey });
 const bucket = storage.bucket(bucketName);
 
 const serverAudioFilesFolder = 'audio-files';
+
+async function checkIfAudioFileExistsAtGCS(id: string) {
+  try {
+    const source = `${serverAudioFilesFolder}/${id}.mp3`;
+    const file = bucket.file(source);
+    const [fileExists] = await file.exists();
+    return fileExists;
+  } catch (error) {
+    throw new Error('Error checking if audio file exists at GCS', {cause: error});
+  }
+}
 
 async function getSignedUrlFromGCS(id: string) {
   try {
@@ -43,8 +56,7 @@ async function getSignedUrlFromGCS(id: string) {
 
     return undefined;
   } catch (error: any) {
-    console.error('Error generating signed URL:', error);
-    return undefined;
+    throw new Error('Error generating signed URL', {cause: error});
   }
 }
 
@@ -69,8 +81,10 @@ async function getCachedSignedUrl(id: string) {
   return newUrl;
 }
 
-async function convertTextToSpeech(text: string, languageCode: string) {
+async function convertAndUploadTextToSpeech(id: string, text: string, languageCode: string) {
   try {
+    // Prepare text using Speech Synthesis Markup Language
+    const SSMLText = convertAndRepeatSentences(text, 3);
     const voice: protos.google.cloud.texttospeech.v1.IVoiceSelectionParams = languageCode == 'uk-UA' ? {
       languageCode: 'uk-UA',
       ssmlGender: 'FEMALE',
@@ -80,25 +94,31 @@ async function convertTextToSpeech(text: string, languageCode: string) {
       ssmlGender: 'FEMALE',
       name: 'en-US-Neural2-H'
     };
-    const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
+    const request: protos.google.cloud.texttospeech.v1.ISynthesizeLongAudioRequest = {
       input: {
-        text: text
+        ssml: SSMLText
       },
       voice: voice,
       audioConfig: {
-        audioEncoding: 'MP3',
-        speakingRate: .90,
+        audioEncoding: 'LINEAR16',
+        speakingRate: .77,
       },
+      outputGcsUri: `gs://${bucketName}/${serverAudioFilesFolder}/${id}.mp3`,
+      parent: `projects/${GCProjectNumber}/locations/global`
     };
 
-    const [response] = await TTSClient.synthesizeSpeech(request);
-    if (response.audioContent instanceof Uint8Array) {
-      return Buffer.from(response.audioContent);
-    } else {
-      throw new Error('Error converting text to speech: response.audioContent is not an instance of Uint8Array');
-    }
+    const [operation] = await TTSLongAudioClient.synthesizeLongAudio(request);
+    const [response] = (await operation.promise()) as protos.google.cloud.texttospeech.v1.ISynthesizeLongAudioResponse[];
+
+    console.log(response);
+
+    // if (response.audioContent instanceof Uint8Array) {
+    //   return Buffer.from(response.audioContent);
+    // } else {
+    //   throw new Error('Error converting text to speech: response.audioContent is not an instance of Uint8Array');
+    // }
   } catch(error) {
-    console.error('Error converting text to speech:', error);
+    throw new Error('Error converting text to speech', {cause: error});
   }
 }
 
@@ -148,10 +168,7 @@ export async function retrieveAudioFileUrl(id: string, languageCode: Dictation['
   if (!text) return undefined;
 
   // If file doesn't exist in cache or GCS then we generate and upload a new one
-  const audioFileContent = await convertTextToSpeech(text, languageCode);
-
-  if (undefined !== audioFileContent) await uploadAudioToGCS(audioFileContent, id);
-  else return undefined;
+  await convertAndUploadTextToSpeech(id, text, languageCode);
 
   const newFileUrl = await getCachedSignedUrl(id);
   return newFileUrl;
@@ -159,13 +176,17 @@ export async function retrieveAudioFileUrl(id: string, languageCode: Dictation['
 
 export async function deleteAudioFromGCS(id: string) {
   try {
+    const audioFileExists = await checkIfAudioFileExistsAtGCS(id);
+
+    if (!audioFileExists) return false;
+
     const destination = `${serverAudioFilesFolder}/${id}.mp3`;
     const file = bucket.file(destination);
 
     await file.delete();
     // console.log(`File with id: ${id} was successfully deleted`);
   } catch (error: any) {
-    console.error(`Error deleting file with id: ${id} from GCS: ${error}`);
+    throw new Error(`Error deleting file with id: ${id} from GCS`, {cause: error});
   }
 }
 
