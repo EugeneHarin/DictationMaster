@@ -3,7 +3,6 @@ import Breadcrumbs from "@/app/ui/components/dashboard/Breadcrumbs";
 import Search from "@/app/ui/components/dashboard/Search";
 import Pagination from "@/app/ui/components/dashboard/dictations/pagination";
 import ResultsTable from "@/app/ui/components/dashboard/results/ResultsTable";
-import { lusitana } from "@/app/ui/fonts";
 import { DictationsTableSkeleton } from "@/app/ui/skeletons";
 import { Metadata } from "next";
 import { Suspense } from "react";

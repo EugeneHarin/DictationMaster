@@ -1,12 +1,12 @@
 'use client'
 
+import { clearCachesByServerAction } from "@/app/lib/cache";
+import { validateDictation } from "@/app/lib/result-functions/validation";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
+import { useRouter } from 'next/navigation';
+import { FormEvent, useState } from "react";
 import { Button } from "../../Button";
 import DictationAudio from "../DictationAudio";
-import { FormEvent, useState } from "react";
-import { useRouter } from 'next/navigation'
-import { validateDictation } from "@/app/lib/result-functions/validation";
-import type DiffMatchPatch from 'diff-match-patch';
 
 export function WriteDictationForm({
   dictationId,
@@ -40,6 +40,8 @@ export function WriteDictationForm({
 
   function afterValidation (resultId: string) {
     setLoading(false);
+    // clearing client cache for the Results page here because it doesn't work in the API route
+    clearCachesByServerAction('/dashboard/results');
     router.push(`/dashboard/results/${resultId}`);
   }
 

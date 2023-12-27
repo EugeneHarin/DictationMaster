@@ -1,5 +1,21 @@
+'use server'
+
 import { sql } from "@vercel/postgres";
 import { AudioFileDataField } from "./definitions";
+
+import { revalidatePath } from "next/cache";
+
+export const clearCachesByServerAction = async (path?: string) => {
+  try {
+    if (path) {
+      revalidatePath(path)
+    } else {
+      revalidatePath('/');
+    }
+  } catch (error) {
+    throw new Error('Error clearing cache by server action', {cause: error})
+  }
+}
 
 export async function getCachedAudioUrl(id: string) {
   try {

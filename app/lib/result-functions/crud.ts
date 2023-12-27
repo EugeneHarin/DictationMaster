@@ -1,8 +1,7 @@
 import { sql } from "@vercel/postgres";
 import type DiffMatchPatch from 'diff-match-patch';
-import { revalidatePath } from "next/cache";
-import { getCurrentUserData } from "../user-actions";
 import { DictationResult } from "../definitions";
+import { getCurrentUserData } from "../user-actions";
 
 export async function createDictationResult(dictationId: string, resultErrors: DiffMatchPatch.Diff[]) {
   try {
@@ -22,7 +21,8 @@ export async function createDictationResult(dictationId: string, resultErrors: D
       RETURNING id;
     `;
     const resultId: string = response.rows[0].id;
-    revalidatePath('/dashboard/results');
+    // Will not work if called from API route for some reason
+    // revalidatePath('/dashboard/results');
     return resultId;
   } catch (error: any) {
     throw new Error('Failed to Create result', {cause: error});
