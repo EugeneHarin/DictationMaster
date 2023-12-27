@@ -74,7 +74,7 @@ export async function createDictation(prevState: State, formData: FormData) {
   if (language_code == 'en-US') {
     wordsCount = content.match(/\b\w+\b/g)?.length || 0;
   } else if (language_code == 'uk-UA') {
-    wordsCount = content.match(/[\u0400-\u04FF]+(?:['’-][\u0400-\u04FF]+)*/g)?.length || 0;
+    wordsCount = content.match(/[\u0400-\u04FF]+(?:['â€™-][\u0400-\u04FF]+)*/g)?.length || 0;
   }
 
   try {
@@ -133,7 +133,7 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
   if (language_code == 'en-US') {
     wordsCount = content.match(/\b\w+\b/g)?.length || 0;
   } else if (language_code == 'uk-UA') {
-    wordsCount = content.match(/[\u0400-\u04FF]+(?:['’-][\u0400-\u04FF]+)*/g)?.length || 0;
+    wordsCount = content.match(/[\u0400-\u04FF]+(?:['â€™-][\u0400-\u04FF]+)*/g)?.length || 0;
   }
 
   try {
