@@ -93,9 +93,9 @@ export default async function Page({ params }: { params: { id: string } }) {
 
         {/* User Errors Number */}
         <div>
-          {dictationResultData.errors_count > 0 ?
+          {dictationResultData.errors_count > 0 || dictationResultData.wrong_characters_count > 0 ?
             <div className="py-2 px-4 rounded-full bg-red-200 text-base font-medium inline-block">
-              You have <span className="bg-red-500 text-white px-1.5">{dictationResultData.errors_count}</span> errors
+              You have <span className="bg-red-500 text-white px-1.5">{dictationResultData.errors_count}</span> errors and <span className="bg-red-400 text-white px-1.5">{dictationResultData.wrong_characters_count}</span> wrong characters
             </div>
           :
             <div className="py-2 px-4 rounded-full bg-green-200 inline-block">

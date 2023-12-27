@@ -118,6 +118,7 @@ async function seedResults(client) {
         dictation_id UUID REFERENCES dictations(id) NOT NULL,
         result_errors JSONB,
         errors_count NUMERIC(4, 0) NOT NULL,
+        wrong_characters_count NUMERIC(4, 0) NOT NULL,
         date TIMESTAMPTZ NOT NULL
       );
     `;

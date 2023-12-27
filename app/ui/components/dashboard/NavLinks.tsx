@@ -82,6 +82,7 @@ export default function NavLinks() {
                   'bg-sky-100 text-blue-600': pathname === link.href,
                 },
               )}
+              prefetch={false}
               draggable="false"
             >
               <LinkIcon className="w-6" />

@@ -1,7 +1,7 @@
-import { sql } from "@vercel/postgres";
+import { QueryResult, QueryResultRow, sql } from "@vercel/postgres";
 import { unstable_noStore as noStore } from 'next/cache';
 import { Dictation, DictationResult, DictationResultAllData, User } from "../definitions";
-import { Result } from "postcss";
+import { getCurrentUserData } from "../user-actions";
 
 const RESULTS_PER_PAGE = 6;
 
@@ -14,6 +14,7 @@ export default async function fetchResultData(resultId: string) {
         results.dictation_id,
         results.result_errors::json,
         results.errors_count,
+        results.wrong_characters_count,
         results.date AS result_date,
         dictations.title AS dictation_title,
         dictations.language_code,
@@ -27,8 +28,7 @@ export default async function fetchResultData(resultId: string) {
       JOIN users ON results.student_id = users.id
       WHERE results.id = ${resultId}
     `;
-    const resultData = data.rows[0];
-    return resultData;
+    return data.rows[0];
   } catch (error: any) {
     throw new Error(`Error getting results`, {cause: error})
   }
@@ -37,19 +37,37 @@ export default async function fetchResultData(resultId: string) {
 export async function fetchResultPages(query: string) {
   noStore();
   try {
-    const count = await sql`
-      SELECT COUNT(*)
-      FROM results
-      JOIN users ON users.id = results.student_id
-      JOIN dictations ON dictations.id = results.dictation_id
-      WHERE
-        users.role = 'student' AND (
-          users.name ILIKE ${`%${query}%`} OR
-          dictations.title ILIKE ${`%${query}%`} OR
-          dictations.words_count::text ILIKE ${`%${query}%`}
-        )
-    `;
-    const totalPages = Math.ceil(Number(count.rows[0].count) / RESULTS_PER_PAGE);
+    const currentUserData = await getCurrentUserData();
+    let data: QueryResult<QueryResultRow>;
+    if (currentUserData.role == 'student') {
+      data = await sql`
+        SELECT COUNT(*)
+        FROM results
+        JOIN users ON users.id = results.student_id
+        JOIN dictations ON dictations.id = results.dictation_id
+        WHERE
+          users.name = ${currentUserData.name} AND
+          users.role = 'student' AND (
+            users.name ILIKE ${`%${query}%`} OR
+            dictations.title ILIKE ${`%${query}%`} OR
+            dictations.words_count::text ILIKE ${`%${query}%`}
+          )
+      `;
+    } else {
+      data = await sql`
+        SELECT COUNT(*)
+        FROM results
+        JOIN users ON users.id = results.student_id
+        JOIN dictations ON dictations.id = results.dictation_id
+        WHERE
+          users.role = 'student' AND (
+            users.name ILIKE ${`%${query}%`} OR
+            dictations.title ILIKE ${`%${query}%`} OR
+            dictations.words_count::text ILIKE ${`%${query}%`}
+          )
+      `;
+    }
+    const totalPages = Math.ceil(Number(data.rows[0].count) / RESULTS_PER_PAGE);
     return totalPages;
   } catch (error) {
     throw new Error('Failed to fetch total number of dictations', {cause: error});
@@ -62,7 +80,6 @@ export async function fetchFilteredResultsData(
   currentPage: number,
 ) {
   noStore();
-  const offset = (currentPage - 1) * RESULTS_PER_PAGE;
 
   type FilteredResult = {
     id: DictationResult['id'];
@@ -75,28 +92,55 @@ export async function fetchFilteredResultsData(
   };
 
   try {
-    const results = await sql<FilteredResult>`
-      SELECT
-        results.id,
-        users.image_url AS student_image_url,
-        users.name AS student_name,
-        dictations.title AS dictation_title,
-        dictations.words_count,
-        results.date AS result_date,
-        results.result_errors,
-        results.errors_count
-      FROM results
-      JOIN users ON results.student_id = users.id
-      JOIN dictations ON results.dictation_id = dictations.id
-      WHERE
-        users.name ILIKE ${`%${query}%`} OR
-        dictations.title ILIKE ${`%${query}%`} OR
-        dictations.words_count::text ILIKE ${`%${query}%`}
-      ORDER BY results.date DESC
-      LIMIT ${RESULTS_PER_PAGE} OFFSET ${offset}
-    `;
+    const offset = (currentPage - 1) * RESULTS_PER_PAGE;
+    const currentUserData = await getCurrentUserData();
+    let data: QueryResult<FilteredResult>;
+    if (currentUserData.role == 'student') {
 
-    return results.rows;
+      data = await sql`
+        SELECT
+          results.id,
+          users.image_url AS student_image_url,
+          users.name AS student_name,
+          dictations.title AS dictation_title,
+          dictations.words_count,
+          results.date AS result_date,
+          results.result_errors,
+          results.errors_count
+        FROM results
+        JOIN users ON results.student_id = users.id
+        JOIN dictations ON results.dictation_id = dictations.id
+        WHERE
+          users.name = ${currentUserData.name} AND (
+            dictations.title ILIKE ${`%${query}%`} OR
+            dictations.words_count::text ILIKE ${`%${query}%`}
+          )
+        ORDER BY results.date DESC
+        LIMIT ${RESULTS_PER_PAGE} OFFSET ${offset}
+      `;
+    } else {
+      data = await sql`
+        SELECT
+          results.id,
+          users.image_url AS student_image_url,
+          users.name AS student_name,
+          dictations.title AS dictation_title,
+          dictations.words_count,
+          results.date AS result_date,
+          results.result_errors,
+          results.errors_count
+        FROM results
+        JOIN users ON results.student_id = users.id
+        JOIN dictations ON results.dictation_id = dictations.id
+        WHERE
+          users.name ILIKE ${`%${query}%`} OR
+          dictations.title ILIKE ${`%${query}%`} OR
+          dictations.words_count::text ILIKE ${`%${query}%`}
+        ORDER BY results.date DESC
+        LIMIT ${RESULTS_PER_PAGE} OFFSET ${offset}
+      `;
+    }
+    return data.rows;
   } catch (error) {
     throw new Error('Failed to fetch results.', {cause: error});
   }
