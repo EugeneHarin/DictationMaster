@@ -15,6 +15,7 @@ export default async function fetchResultData(resultId: string) {
         results.result_errors::json,
         results.errors_count,
         results.wrong_characters_count,
+        results.correctness_percentage,
         results.date AS result_date,
         dictations.title AS dictation_title,
         dictations.language_code,
@@ -88,7 +89,7 @@ export async function fetchFilteredResultsData(
     dictation_title: Dictation['title'];
     words_count: Dictation['words_count'];
     result_date: DictationResult['date'];
-    errors_count: DictationResult['errors_count'];
+    correctness_percentage: DictationResult['correctness_percentage'];
   };
 
   try {
@@ -106,7 +107,7 @@ export async function fetchFilteredResultsData(
           dictations.words_count,
           results.date AS result_date,
           results.result_errors,
-          results.errors_count
+          results.correctness_percentage
         FROM results
         JOIN users ON results.student_id = users.id
         JOIN dictations ON results.dictation_id = dictations.id
@@ -128,7 +129,7 @@ export async function fetchFilteredResultsData(
           dictations.words_count,
           results.date AS result_date,
           results.result_errors,
-          results.errors_count
+          results.correctness_percentage
         FROM results
         JOIN users ON results.student_id = users.id
         JOIN dictations ON results.dictation_id = dictations.id

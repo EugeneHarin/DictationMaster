@@ -3,7 +3,7 @@ import type DiffMatchPatch from 'diff-match-patch';
 import { DictationResult } from "../definitions";
 import { getCurrentUserData } from "../user-actions";
 
-export async function createDictationResult(dictationId: string, resultErrors: DiffMatchPatch.Diff[]) {
+export async function createDictationResult(dictationId: string, resultErrors: DiffMatchPatch.Diff[], originalText: string) {
   try {
     const date = new Date().toISOString();
     const userData = await getCurrentUserData();
@@ -14,10 +14,11 @@ export async function createDictationResult(dictationId: string, resultErrors: D
       errorsArray[i][0] !== 0 && (!errorsArray[i+1] || errorsArray[i+1] && errorsArray[i+1][0] == 0)
       ? errCounter += 1
       : errCounter, 0);
+    const correctnessPercentage = 100 - (wrongCharsCount * 100 / originalText.length);
 
     const response = await sql`
-      INSERT INTO results(student_id, dictation_id, result_errors, errors_count, wrong_characters_count, date)
-      VALUES (${studentId},${dictationId},${resultErrorsJSON},${errorsCount}, ${wrongCharsCount}, ${date})
+      INSERT INTO results(student_id, dictation_id, result_errors, errors_count, wrong_characters_count, correctness_percentage, date)
+      VALUES (${studentId},${dictationId},${resultErrorsJSON},${errorsCount}, ${wrongCharsCount}, ${correctnessPercentage}, ${date})
       RETURNING id;
     `;
     const resultId: string = response.rows[0].id;

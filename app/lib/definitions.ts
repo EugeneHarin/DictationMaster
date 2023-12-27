@@ -32,6 +32,7 @@ export type DictationResult = {
   result_errors: DiffMatchPatch.Diff[];
   errors_count: number;
   wrong_characters_count: number;
+  correctness_percentage: number;
   date: string;
 };
 
@@ -42,6 +43,7 @@ export type DictationResultAllData = {
   result_errors: DictationResult['result_errors'];
   errors_count: DictationResult['errors_count'];
   wrong_characters_count: DictationResult['wrong_characters_count'];
+  correctness_percentage: DictationResult['correctness_percentage'];
   result_date: DictationResult['date'];
   dictation_title: Dictation['title'],
   language_code: Dictation['language_code'];

@@ -119,7 +119,9 @@ async function seedResults(client) {
         result_errors JSONB,
         errors_count NUMERIC(4, 0) NOT NULL,
         wrong_characters_count NUMERIC(4, 0) NOT NULL,
+        correctness_percentage NUMERIC(3, 0) NOT NULL,
         date TIMESTAMPTZ NOT NULL
+        CHECK (correctness_percentage BETWEEN 1 AND 100)
       );
     `;
 

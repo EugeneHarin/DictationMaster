@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
     const dmp = new DiffMatchPatch();
     const verificationErrors = dmp.diff_main(originalText, userInput);
-    const resultId = await createDictationResult(dictationId, verificationErrors);
+    const resultId = await createDictationResult(dictationId, verificationErrors, originalText);
 
     return NextResponse.json({ resultId: resultId }, { status: 200 });
   } catch (error: unknown) {
