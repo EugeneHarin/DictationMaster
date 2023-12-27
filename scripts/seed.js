@@ -63,7 +63,7 @@ async function seedDictations(client) {
         audio_file_url VARCHAR(1600),
         audio_file_exp_date TIMESTAMPTZ,
         status VARCHAR(255) NOT NULL,
-        date DATE NOT NULL
+        date TIMESTAMPTZ NOT NULL
       );
     `;
 
@@ -118,7 +118,7 @@ async function seedResults(client) {
         dictation_id UUID REFERENCES dictations(id) NOT NULL,
         result_errors JSONB,
         errors_count NUMERIC(4, 0) NOT NULL,
-        date DATE NOT NULL
+        date TIMESTAMPTZ NOT NULL
       );
     `;
 
