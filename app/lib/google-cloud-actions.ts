@@ -110,13 +110,6 @@ async function convertAndUploadTextToSpeech(id: string, text: string, languageCo
     const [operation] = await TTSLongAudioClient.synthesizeLongAudio(request);
     const [response] = (await operation.promise()) as protos.google.cloud.texttospeech.v1.ISynthesizeLongAudioResponse[];
 
-    console.log(response);
-
-    // if (response.audioContent instanceof Uint8Array) {
-    //   return Buffer.from(response.audioContent);
-    // } else {
-    //   throw new Error('Error converting text to speech: response.audioContent is not an instance of Uint8Array');
-    // }
   } catch(error) {
     throw new Error('Error converting text to speech', {cause: error});
   }

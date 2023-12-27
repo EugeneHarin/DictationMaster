@@ -38,9 +38,6 @@ export default function EditDictationForm({
     }
   };
 
-  console.log('errorsCount', errorsCount);
-  console.log('state?.errors', state?.errors);
-  // Show actual error in the console
   useMemo(()=>{
     if (errorsCount && state?.errors) console.error(Object.values(state.errors).filter(errorMessage => errorMessage.length)[0] || 'Unknown Error');
   }, [state, errorsCount]);
