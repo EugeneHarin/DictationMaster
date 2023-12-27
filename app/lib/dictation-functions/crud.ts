@@ -6,7 +6,9 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { deleteAudioFromGCS } from "../google-cloud-actions";
 import { deleteCachedAudioUrl } from "../cache";
-import { Dictation, LANGUAGE_CODES } from "../definitions";
+import { DICTATION_SPEEDS, Dictation, LANGUAGE_CODES } from "../definitions";
+
+const DICTATION_SPEEDS_STRINGS: readonly [string, ...string[]] = DICTATION_SPEEDS.map(speed => speed.toString()) as [string, ...string[]];
 
 export type State = {
   errors?: {
@@ -15,10 +17,26 @@ export type State = {
     language_code?: string[];
     content?: string[];
     status?: string[];
+    speed?: string[];
     databaseError?: string[];
   };
   message?: string | null;
 };
+
+const speedSchema = z.union([
+  z.literal(0.5),
+  z.literal(0.6),
+  z.literal(0.7),
+  z.literal(0.8),
+  z.literal(0.9),
+  z.literal(1)
+]).refine((data) => {
+  // Check if the data is one of the valid speeds
+  return DICTATION_SPEEDS.includes(data);
+}, {
+  // Custom error message
+  message: "Invalid speed. Speed must be one of 0.5, 0.6, 0.7, 0.8, 0.9, 1",
+});
 
 const FormSchema = z.object({
   id: z.string(),
@@ -40,6 +58,10 @@ const FormSchema = z.object({
     .enum(['draft', 'published'], {
       invalid_type_error: 'Please select an dictation status.',
     }),
+  speed: z
+    .enum(['0.5', '0.6', '0.7', '0.8', '0.9', '1'], {
+      invalid_type_error: 'Invalid speed value.',
+    }),
   language_code: z
     .enum(LANGUAGE_CODES, {
       invalid_type_error: 'Please select the language code.',
@@ -58,6 +80,7 @@ export async function createDictation(prevState: State, formData: FormData) {
     language_code: formData.get('language_code'),
     content: formData.get('content'),
     status: formData.get('status'),
+    speed: formData.get('speed'),
   });
 
   if (!validatedFields.success) {
@@ -67,7 +90,7 @@ export async function createDictation(prevState: State, formData: FormData) {
     }
   }
 
-  const { teacherId, title, language_code, content, status } = validatedFields.data;
+  const { teacherId, title, language_code, content, status, speed } = validatedFields.data;
   const date = new Date().toISOString();
 
   let wordsCount = 0;
@@ -79,8 +102,8 @@ export async function createDictation(prevState: State, formData: FormData) {
 
   try {
     sql`
-      INSERT INTO dictations(teacher_id, title, language_code, content, status, words_count, date)
-      VALUES (${teacherId},${title},${language_code},${content},${status},${wordsCount},${date})
+      INSERT INTO dictations(teacher_id, title, language_code, content, status, speed, words_count, date)
+      VALUES (${teacherId},${title},${language_code},${content},${status},${speed},${wordsCount},${date})
     `;
   } catch (error: any) {
     throw new Error('Error Creating dictation', {cause: error});
@@ -113,6 +136,7 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
     language_code: formData.get('language_code'),
     content: formData?.get('content'),
     status: formData?.get('status'),
+    speed: formData.get('speed'),
   });
 
   if (!validatedFields.success) {
@@ -121,8 +145,8 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
       message: 'Missing Fields. Failed to Update Dictation.',
     };
   }
-  const { teacherId, title, language_code, content, status } = validatedFields.data;
-  const { content: oldDictationContent, language_code: oldDictationLanguageCode } = (await getDictation(id));
+  const { teacherId, title, language_code, content, status, speed } = validatedFields.data;
+  const { content: oldDictationContent, language_code: oldDictationLanguageCode, speed: oldDictationSpeed } = (await getDictation(id));
 
   let wordsCount = 0;
   if (language_code == 'en-US') {
@@ -134,19 +158,21 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
   try {
     await sql`
       UPDATE dictations
-      SET teacher_id = ${teacherId},
-      title = ${title},
-      content = ${content},
-      status = ${status},
-      words_count = ${wordsCount},
-      language_code = ${language_code}
+      SET
+        teacher_id = ${teacherId},
+        title = ${title},
+        content = ${content},
+        status = ${status},
+        words_count = ${wordsCount},
+        language_code = ${language_code},
+        speed = ${speed}
       WHERE id = ${id}
     `;
   } catch (error: unknown) {
     throw new Error('Error Updating dictation', {cause: error});
   }
 
-  if (oldDictationContent !== content || oldDictationLanguageCode !== language_code) {
+  if (oldDictationContent !== content || oldDictationLanguageCode !== language_code || oldDictationSpeed.toString() !== speed) {
     deleteAudioFromGCS(id);
     deleteCachedAudioUrl(id);
   }

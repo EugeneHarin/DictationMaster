@@ -7,7 +7,7 @@ import { UserCircleIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 export async function StartDictationPage({ dictationId }: { dictationId: string }) {
   const dictationWithTeacher = await fetchDictationWithTeacher(dictationId);
   if (!dictationWithTeacher) notFound();
-  const audioFileUrl = await retrieveAudioFileUrl(dictationWithTeacher.id, dictationWithTeacher.language_code, dictationWithTeacher.content);
+  const audioFileUrl = await retrieveAudioFileUrl(dictationWithTeacher.id, dictationWithTeacher.content, dictationWithTeacher.language_code, dictationWithTeacher.speed);
 
   if (!audioFileUrl) notFound();
 

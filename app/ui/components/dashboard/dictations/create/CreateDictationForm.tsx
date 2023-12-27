@@ -1,6 +1,6 @@
 'use client';
 
-import { LANGUAGE_CODES, User } from '@/app/lib/definitions';
+import { Dictation, LANGUAGE_CODES, User } from '@/app/lib/definitions';
 import {
   CheckIcon,
   DocumentTextIcon,
@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { Button } from '@/app/ui/components/dashboard/Button';
 import { createDictation } from '@/app/lib/dictation-functions/crud';
 import { useFormState } from 'react-dom';
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 export default function CreateDictationForm({
   teachers,
@@ -22,7 +22,18 @@ export default function CreateDictationForm({
 }) {
   const initialState = { errors: {}, message: null };
   const [state, dispatch] = useFormState(createDictation, initialState);
+  const [speed, setSpeed] = useState(0.7);
   const errorsCount = state.errors ? Object.keys(state.errors).length : 0;
+
+  const handleSpeedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (!event?.target?.value) return false;
+      const value = parseFloat(event.target.value) as Dictation['speed'];
+      setSpeed(value);
+    } catch (error: unknown) {
+      throw new Error('Error changing dictation speed:', {cause: error});
+    }
+  };
 
   // Show actual error in the console
   useMemo(()=>{
@@ -138,6 +149,25 @@ export default function CreateDictationForm({
               />
               <DocumentTextIcon className="pointer-events-none absolute left-3 top-[1.125rem] h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
+          </div>
+          <div id="content-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.content &&
+              state.errors.content.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+
+        {/* Dictation Speed */}
+        <div className="mb-4">
+          <label htmlFor="speed" className="mb-2 block text-sm font-medium">
+            Select dictation speed
+          </label>
+          <div className="mt-2 rounded-md">
+            <input onInput={handleSpeedChange} type="range" min="0.5" max="1" step="0.1" id="speed" name="speed" defaultValue={speed} aria-describedby="content-speed"/>
+            <div>{speed}</div>
           </div>
           <div id="content-error" aria-live="polite" aria-atomic="true">
             {state.errors?.content &&

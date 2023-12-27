@@ -14,7 +14,7 @@ export default async function ViewDictationForm({
   dictationWithTeacher: DictationWithTeacher,
 }) {
   const role = await getCurrentUserRole();
-  const audioUrl = await retrieveAudioFileUrl(dictationWithTeacher.id, dictationWithTeacher.language_code, dictationWithTeacher.content);
+  const audioUrl = await retrieveAudioFileUrl(dictationWithTeacher.id, dictationWithTeacher.content, dictationWithTeacher.language_code, dictationWithTeacher.speed);
 
   return (
     <div className="rounded-md bg-gray-50 p-4 md:p-6 flex flex-col gap-6">
@@ -51,7 +51,7 @@ export default async function ViewDictationForm({
         </label>
         <div className="relative mt-2 rounded-md">
           <div className="relative">
-            <select disabled aria-describedby="language-code-error" name="language_code" id="language_code" className="peer block rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500">
+            <select disabled defaultValue={dictationWithTeacher.language_code} aria-describedby="language-code-error" name="language_code" id="language_code" className="peer block rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500">
               {LANGUAGE_CODES.map(language_code =>
                   <option value={language_code} key={language_code}>{language_code}</option>
               )}
@@ -71,6 +71,17 @@ export default async function ViewDictationForm({
             {dictationWithTeacher?.words_count}
           </div>
           <ChatBubbleBottomCenterTextIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 focus:text-gray-900" />
+        </div>
+      </div>
+
+      {/* Dictation Speed */}
+      <div className="mb-4">
+        <label htmlFor="speed" className="mb-2 block text-sm font-medium">
+          Dictation speed
+        </label>
+        <div className="mt-2 rounded-md">
+          <input disabled type="range" min="0.5" max="1" step="0.1" id="speed" name="speed" defaultValue={dictationWithTeacher.speed} aria-describedby="content-speed"/>
+          <div>{dictationWithTeacher.speed}</div>
         </div>
       </div>
 

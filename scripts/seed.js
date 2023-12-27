@@ -63,7 +63,9 @@ async function seedDictations(client) {
         audio_file_url VARCHAR(1600),
         audio_file_exp_date TIMESTAMPTZ,
         status VARCHAR(255) NOT NULL,
+        speed NUMERIC(2, 1) DEFAULT 0.7,
         date TIMESTAMPTZ NOT NULL
+        CHECK (speed IN (0.5, 0.6, 0.7, 0.8, 0.9, 1)) NOT NULL
       );
     `;
 

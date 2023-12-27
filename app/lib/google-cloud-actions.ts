@@ -81,7 +81,7 @@ async function getCachedSignedUrl(id: string) {
   return newUrl;
 }
 
-async function convertAndUploadTextToSpeech(id: string, text: string, languageCode: string) {
+async function convertAndUploadTextToSpeech(id: string, text: string, languageCode: string, speed: number = 0.7) {
   try {
     // Prepare text using Speech Synthesis Markup Language
     const SSMLText = convertAndRepeatSentences(text, 3);
@@ -101,7 +101,7 @@ async function convertAndUploadTextToSpeech(id: string, text: string, languageCo
       voice: voice,
       audioConfig: {
         audioEncoding: 'LINEAR16',
-        speakingRate: .77,
+        speakingRate: speed,
       },
       outputGcsUri: `gs://${bucketName}/${serverAudioFilesFolder}/${id}.mp3`,
       parent: `projects/${GCProjectNumber}/locations/global`
@@ -159,7 +159,7 @@ async function uploadAudioToGCS(audioContent: Buffer, id: string) {
  * @returns audiofile url
  * @returns undefined
  */
-export async function retrieveAudioFileUrl(id: string, languageCode: Dictation['language_code'], text: string | undefined) {
+export async function retrieveAudioFileUrl(id: string, text: string | undefined, languageCode: Dictation['language_code'] = 'en-US', speed: number = 0.7) {
 
   const existingFileUrl = await getCachedSignedUrl(id);
 
@@ -168,7 +168,7 @@ export async function retrieveAudioFileUrl(id: string, languageCode: Dictation['
   if (!text) return undefined;
 
   // If file doesn't exist in cache or GCS then we generate and upload a new one
-  await convertAndUploadTextToSpeech(id, text, languageCode);
+  await convertAndUploadTextToSpeech(id, text, languageCode, speed);
 
   const newFileUrl = await getCachedSignedUrl(id);
   return newFileUrl;
