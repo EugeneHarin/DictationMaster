@@ -4,6 +4,7 @@ import { getResultErrorsHtml } from "@/app/lib/utils";
 import Breadcrumbs from '@/app/ui/components/dashboard/Breadcrumbs';
 import DictationAudio from "@/app/ui/components/dashboard/dictations/DictationAudio";
 import { DocumentTextIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -18,6 +19,24 @@ export default async function Page({ params }: { params: { id: string } }) {
   if (!dictationResultData) notFound();
   const audioUrl = await retrieveAudioFileUrl(dictationResultData.dictation_id, dictationResultData.dictation_content, dictationResultData.language_code, dictationResultData.speed);
   const resultWithErrorsHtml = getResultErrorsHtml(dictationResultData.result_errors);
+  const dictationIsPassed = dictationResultData.correctness_percentage > 90;
+  const resultErrorsArray = [
+    {
+      message: 'You have',
+      value: dictationResultData.errors_count,
+      additionalText: 'errors',
+    },
+    {
+      message: 'There is',
+      value: dictationResultData.wrong_characters_count,
+      additionalText: 'wrong characters in your text',
+    },
+    {
+      message: 'Your accuracy is',
+      value: dictationResultData.correctness_percentage + '%',
+      additionalText: '',
+    },
+  ];
 
   return (
     <main>
@@ -91,17 +110,29 @@ export default async function Page({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* User Errors Number */}
-        <div>
-          {dictationResultData.correctness_percentage < 90 ?
-            <div className="py-2 px-4 rounded-full bg-red-200 text-base font-medium inline-block">
-              Your accuracy is <span className="bg-red-500 text-white px-1.5">{dictationResultData.correctness_percentage}%</span>
+        {/* Errors overview */}
+        <div className="flex flex-col gap-3">
+          {resultErrorsArray.map((error, index) => (
+            <div key={index} className={
+              clsx(dictationIsPassed
+                ? 'py-2 px-4 rounded-full bg-green-200 inline-block'
+                : 'py-2 px-4 rounded-full bg-red-200 text-base font-medium inline-block'
+              , 'w-fit')
+            }>
+              <span>{error.message} </span>
+              <span className={
+                clsx(dictationIsPassed
+                  ? 'bg-green-500 text-white px-1.5'
+                  : 'bg-red-500 text-white px-1.5'
+                )
+              }>
+                {error.value}
+              </span>
+              {error.additionalText &&
+                <span> {error.additionalText}</span>
+              }
             </div>
-          :
-            <div className="py-2 px-4 rounded-full bg-green-200 inline-block">
-              Your accuracy is <span className="bg-green-500 text-white px-1.5">{dictationResultData.correctness_percentage}%</span>
-            </div>
-          }
+          ))}
         </div>
 
         <div>
