@@ -46,7 +46,7 @@ export default async function DictationsTable({
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
                     <p className="text-xl font-medium">
-                      {dictation.words_count}
+                      {dictation.words_count} <span className="md:hidden">words</span>
                     </p>
                     <p>{formatDateToLocal(dictation.date)}</p>
                   </div>
@@ -106,7 +106,7 @@ export default async function DictationsTable({
                     <b>{dictation.title}</b>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {dictation.words_count}
+                    {dictation.words_count} <span className="md:hidden">words</span>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatDateToLocal(dictation.date)}

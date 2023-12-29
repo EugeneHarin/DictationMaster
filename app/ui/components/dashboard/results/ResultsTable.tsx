@@ -1,6 +1,7 @@
 import { fetchFilteredResultsData } from "@/app/lib/result-functions/fetch";
 import { formatDateToLocal, } from '@/app/lib/utils';
 import { ViewResult } from '@/app/ui/components/dashboard/dictations/action-buttons';
+import clsx from "clsx";
 import Image from 'next/image';
 
 export default async function ResultsTable({
@@ -42,12 +43,17 @@ export default async function ResultsTable({
                     )}
                     <p className="text-sm text-gray-500"><b>{result.dictation_title}</b></p>
                   </div>
-                  <div>{result.correctness_percentage}%</div>
+                  <div>
+                    <div className="mb-3">Accuracy</div>
+                    <div className={clsx(result.correctness_percentage < 90 ? 'text-red-600 font-bold' : 'text-green-600 font-bold')}>
+                      {result.correctness_percentage}%
+                    </div>
+                  </div>
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
                     <p className="text-xl font-medium">
-                      {result.words_count}
+                      {result.words_count} <span className="md:hidden">words</span>
                     </p>
                     <p>{formatDateToLocal(result.result_date)}</p>
                   </div>
@@ -105,16 +111,15 @@ export default async function ResultsTable({
                     <b>{result.dictation_title}</b>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {result.words_count}
+                    {result.words_count} <span className="md:hidden">words</span>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatDateToLocal(result.result_date)}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {result.correctness_percentage < 90
-                    ? <div className="text-red-600 font-bold">{result.correctness_percentage}%</div>
-                    : <div className="text-green-600 font-bold">{result.correctness_percentage}%</div>
-                    }
+                    <div className={clsx(result.correctness_percentage < 90 ? 'text-red-600 font-bold' : 'text-green-600 font-bold')}>
+                      {result.correctness_percentage}%
+                    </div>
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
