@@ -33,23 +33,20 @@ export default function AIReviewButton({
         break;
 
       case 'create-instance-error':
+      case 'prediction-result-error':
+      case 'project-id-not-found':
         console.error(AIReviewResponse.message);
         setAIReview(<pre>{errorMessageForUser}</pre>);
         break;
 
-      case 'prediction-result-error':
-        console.error(AIReviewResponse.message);
+      case 'unknown-error':
+        console.error(AIReviewResponse.error);
         setAIReview(<pre>{errorMessageForUser}</pre>);
         break;
 
       case 'unsupported-language-error':
         console.error(AIReviewResponse.message);
         setAIReview(<pre>{AIReviewResponse.message}</pre>);
-        break;
-
-      case 'unknown-error':
-        console.error(AIReviewResponse.error);
-        setAIReview(<pre>{errorMessageForUser}</pre>);
         break;
     }
   }

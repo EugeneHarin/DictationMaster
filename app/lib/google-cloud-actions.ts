@@ -15,7 +15,6 @@ import { convertAndRepeatSentences } from "./utils";
 const googleApplicationCredentialsBase64 = process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64;
 const bucketName = process.env.GCS_BUCKET_NAME;
 const GCProjectNumber = process.env.GC_PROJECT_NUMBER;
-const GCProjectId = process.env.GC_PROJECT_ID;
 if (!GCProjectNumber) throw new Error('Error getting Google Project Number from .env');
 if (!googleApplicationCredentialsBase64) throw new Error('Error getting Google Application Credentials from .env');
 if (!bucketName) throw new Error('Error getting Google Storage bucket Name from .env');
@@ -215,18 +214,23 @@ type UnknownError = { _t: 'unknown-error'; error: unknown };
 type GetAIDictationReviewSuccess = { _t: 'success'; result: string };
 type PredictionResultError = { _t: 'prediction-result-error', message: string };
 type UnsupportedLanguageError = { _t: 'unsupported-language-error', message: string };
+type ProjectIDNotFoundError = { _t: 'project-id-not-found', message: string };
 type getAIDictationReviewResult =
   | CreateInstanceError
   | UnknownError
   | GetAIDictationReviewSuccess
   | PredictionResultError
   | UnsupportedLanguageError
+  | ProjectIDNotFoundError
 
 export async function getAIDictationReview(originalText: string, userInput: string, languageCode: Dictation['language_code']): Promise<getAIDictationReviewResult> {
 
   try {
 
     if (languageCode !== 'en-US') return { _t: 'unsupported-language-error', message: 'Selected dictation language is not currently supported' };
+
+    const GCProjectId = process.env.GC_PROJECT_ID;
+    if (GCProjectId == undefined) return { _t: "project-id-not-found", message: 'GC_PROJECT_ID wan not found in the environment variables' };
 
     const textInput = `
     Here is the original text: "${originalText}"
