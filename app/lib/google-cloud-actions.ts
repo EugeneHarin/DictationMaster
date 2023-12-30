@@ -1,6 +1,8 @@
 'use server'
 
 // Initialize Google Cloud Storage Bucket
+import type { protos as AIPlatformProtos } from '@google-cloud/aiplatform';
+import { PredictionServiceClient, helpers } from '@google-cloud/aiplatform';
 import { Storage } from '@google-cloud/storage';
 import type { protos } from '@google-cloud/text-to-speech';
 import { TextToSpeechLongAudioSynthesizeClient } from '@google-cloud/text-to-speech';
@@ -8,16 +10,24 @@ import { getCachedAudioUrl, setCachedAudioUrl } from "./cache";
 import { Dictation } from "./definitions";
 import { convertAndRepeatSentences } from "./utils";
 
+// const {PredictionServiceClient} = EndpointServiceClient.v1;
 // GCS - Google Cloud Storage
 const googleApplicationCredentialsBase64 = process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64;
 const bucketName = process.env.GCS_BUCKET_NAME;
 const GCProjectNumber = process.env.GC_PROJECT_NUMBER;
+const GCProjectId = process.env.GC_PROJECT_ID;
+if (!GCProjectNumber) throw new Error('Error getting Google Project Number from .env');
 if (!googleApplicationCredentialsBase64) throw new Error('Error getting Google Application Credentials from .env');
 if (!bucketName) throw new Error('Error getting Google Storage bucket Name from .env');
 
 const serviceAccountKey = JSON.parse(Buffer.from(googleApplicationCredentialsBase64, 'base64').toString('ascii'));
 const storage = new Storage({ credentials: serviceAccountKey });
 const TTSLongAudioClient = new TextToSpeechLongAudioSynthesizeClient({ credentials: serviceAccountKey });
+const predictionServiceClient = new PredictionServiceClient({
+  apiEndpoint: 'us-central1-aiplatform.googleapis.com',
+  credentials: serviceAccountKey
+});
+
 const bucket = storage.bucket(bucketName);
 
 const serverAudioFilesFolder = 'audio-files';
@@ -197,5 +207,63 @@ export async function deleteAllAudioFilesFromGCS() {
     // console.log(`All files in folder ${serverAudioFilesFolder} were successfully deleted`);
   } catch (error: any) {
     console.error(`Error deleting all GCS files from folder ${serverAudioFilesFolder}: ${error}`);
+  }
+}
+
+type CreateInstanceError = { _t: 'create-instance-error', message: string };
+type UnknownError = { _t: 'unknown-error'; error: unknown };
+type GetAIDictationReviewSuccess = { _t: 'success'; result: string };
+type PredictionResultError = { _t: 'prediction-result-error', message: string };
+type UnsupportedLanguageError = { _t: 'unsupported-language-error', message: string };
+type getAIDictationReviewResult =
+  | CreateInstanceError
+  | UnknownError
+  | GetAIDictationReviewSuccess
+  | PredictionResultError
+  | UnsupportedLanguageError
+
+export async function getAIDictationReview(originalText: string, userInput: string, languageCode: Dictation['language_code']): Promise<getAIDictationReviewResult> {
+
+  if (languageCode !== 'en-US') return { _t: 'unsupported-language-error', message: 'Selected dictation language is not currently supported' };
+
+  const textInput = `
+  Here is the original text: "${originalText}"
+  Here is a dictation result text with errors from a student: "${userInput}"
+  Please analyze all existing errors, one by one, including punctuation errors, and provide a corresponding rules.
+  Your analysis:
+  `;
+
+  const model = 'text-bison@002';
+  const publisher = 'google';
+  const location = 'us-central1';
+  const endpoint = `projects/${GCProjectId}/locations/${location}/publishers/${publisher}/models/${model}`;
+  try {
+
+    const instanceValue = helpers.toValue({ prompt: textInput });
+    if (!instanceValue) return {_t: 'create-instance-error', message: 'Error getting instance value using helper from @google-cloud/aiplatform'};
+
+    const instances = [instanceValue];
+    const parameters = helpers.toValue({
+      temperature: .3,
+      maxOutputTokens: 512,
+      topP: .3,
+      topK: 20,
+    });
+
+    const request: AIPlatformProtos.google.cloud.aiplatform.v1.IPredictRequest  = {
+      endpoint,
+      instances,
+      parameters,
+    };
+
+    const [response] = await predictionServiceClient.predict(request);
+    const predictions = response.predictions;
+    const predictionResult = predictions?.[0]?.structValue?.fields?.content?.stringValue;
+    if (!predictionResult) return { _t: 'prediction-result-error', message: 'Can\'t find prediction text content returned from predictionServiceClient at @google-cloud/aiplatform' };
+
+    return { _t: 'success', result: predictionResult };
+
+  } catch(error) {
+    return { _t: 'unknown-error', error: error };
   }
 }

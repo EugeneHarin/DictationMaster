@@ -1,16 +1,21 @@
+'use server'
+
 import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-actions";
 import fetchResultData from "@/app/lib/result-functions/fetch";
 import { getResultErrorsHtml } from "@/app/lib/utils";
 import Breadcrumbs from '@/app/ui/components/dashboard/Breadcrumbs';
 import DictationAudio from "@/app/ui/components/dashboard/dictations/DictationAudio";
+import AIReviewButton from "@/app/ui/components/dashboard/results/AIReviewButton";
 import { DocumentTextIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: 'Edit Dictation',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: 'Edit Dictation',
+  }
+}
 
 export default async function Page({ params }: { params: { id: string } }) {
 
@@ -37,6 +42,8 @@ export default async function Page({ params }: { params: { id: string } }) {
       additionalText: '',
     },
   ];
+
+  const studentInput = dictationResultData.result_errors.reduce((resultText, currentElement) => currentElement[0] !== -1 ? resultText += currentElement[1] : resultText, '');
 
   return (
     <main>
@@ -75,7 +82,7 @@ export default async function Page({ params }: { params: { id: string } }) {
               <div className="peer w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500">
                 {dictationResultData.dictation_title}
               </div>
-              <DocumentTextIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <DocumentTextIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-foc  :text-gray-900" />
             </div>
           </div>
         </div>
@@ -135,9 +142,8 @@ export default async function Page({ params }: { params: { id: string } }) {
           ))}
         </div>
 
-        <div>
-
-        </div>
+        {/* AI Review */}
+        <AIReviewButton originalText={dictationResultData.dictation_content} studentInput={studentInput} languageCode={dictationResultData.language_code} />
 
       </div>
 
