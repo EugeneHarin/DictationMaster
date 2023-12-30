@@ -23,24 +23,24 @@ type LinksList = {
 }
 
 const links: LinksList[] = [
-  {
-    name: 'Dashboard',
-    href: '/dashboard',
-    icon: HomeIcon,
-    roles: ['teacher'],
-  },
+  // {
+  //   name: 'Dashboard',
+  //   href: '/dashboard',
+  //   icon: HomeIcon,
+  //   roles: ['teacher'],
+  // },
   {
     name: 'Dictations',
     href: '/dashboard/dictations',
     icon: DocumentDuplicateIcon,
     roles: ['teacher', 'student'],
   },
-  {
-    name: 'Students',
-    href: '/dashboard/students',
-    icon: UserGroupIcon,
-    roles: ['teacher'],
-  },
+  // {
+  //   name: 'Students',
+  //   href: '/dashboard/students',
+  //   icon: UserGroupIcon,
+  //   roles: ['teacher'],
+  // },
   {
     name: 'Results',
     href: '/dashboard/results',
