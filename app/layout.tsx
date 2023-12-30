@@ -7,8 +7,7 @@ export const metadata: Metadata = {
     template: '%s | Dictation Master',
     default: 'Dictation Master',
   },
-  description: 'The official Next.js Learn Dashboard built with App Router.',
-  metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
+  description: 'Website to test you skills in writing dictations',
 };
 
 export default function RootLayout({
