@@ -2,7 +2,7 @@
 
 import z from 'zod';
 import { sql } from '@vercel/postgres';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, unstable_noStore as noStore } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { deleteAudioFromGCS } from "../google-cloud-actions";
 import { deleteCachedAudioUrl } from "../cache";
@@ -74,6 +74,7 @@ const CreateDictation = FormSchema.omit({ id: true, date: true });
 const UpdateDictation = FormSchema.omit({ id: true, date: true });
 
 export async function createDictation(prevState: State, formData: FormData) {
+  noStore();
   const validatedFields = CreateDictation.safeParse({
     teacherId: formData.get('teacherId'),
     title: formData.get('title'),
@@ -115,6 +116,7 @@ export async function createDictation(prevState: State, formData: FormData) {
 }
 
 export async function getDictation(id: string) {
+  noStore();
   try {
     const data = await sql`
       SELECT *
@@ -130,6 +132,7 @@ export async function getDictation(id: string) {
 }
 
 export async function updateDictation(id: string, prevState: State, formData: FormData) {
+  noStore();
   const validatedFields = UpdateDictation.safeParse({
     teacherId: formData?.get('teacherId'),
     title: formData?.get('title'),
@@ -172,6 +175,9 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
     throw new Error('Error Updating dictation', {cause: error});
   }
 
+  console.log(oldDictationSpeed.toString());
+  console.log(speed);
+
   if (oldDictationContent !== content || oldDictationLanguageCode !== language_code || oldDictationSpeed.toString() !== speed) {
     deleteAudioFromGCS(id);
     deleteCachedAudioUrl(id);
@@ -182,6 +188,7 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
 }
 
 export async function deleteDictation(id: string) {
+  noStore();
   try {
     sql`DELETE FROM dictations WHERE id = ${id}`;
     deleteAudioFromGCS(id);

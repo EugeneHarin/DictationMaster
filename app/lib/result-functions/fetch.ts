@@ -6,6 +6,7 @@ import { getCurrentUserData } from "../user-actions";
 const RESULTS_PER_PAGE = 6;
 
 export default async function fetchResultData(resultId: string) {
+  noStore();
   try {
     const data = await sql<DictationResultAllData>`
       SELECT

@@ -1,9 +1,11 @@
 import { sql } from "@vercel/postgres";
 import type DiffMatchPatch from 'diff-match-patch';
+import { unstable_noStore as noStore } from "next/cache";
 import { DictationResult } from "../definitions";
 import { getCurrentUserData } from "../user-actions";
 
 export async function createDictationResult(dictationId: string, resultErrors: DiffMatchPatch.Diff[], originalText: string) {
+  noStore();
   try {
     const date = new Date().toISOString();
     const userData = await getCurrentUserData();
@@ -31,6 +33,7 @@ export async function createDictationResult(dictationId: string, resultErrors: D
 }
 
 export async function getDictationResult(dictationId: string, studentId: string) {
+  noStore();
   try {
     const data = await sql`
       SELECT *
