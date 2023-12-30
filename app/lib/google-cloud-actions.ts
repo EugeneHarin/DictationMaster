@@ -224,23 +224,24 @@ type getAIDictationReviewResult =
 
 export async function getAIDictationReview(originalText: string, userInput: string, languageCode: Dictation['language_code']): Promise<getAIDictationReviewResult> {
 
-  if (languageCode !== 'en-US') return { _t: 'unsupported-language-error', message: 'Selected dictation language is not currently supported' };
-
-  const textInput = `
-  Here is the original text: "${originalText}"
-  Here is a dictation result text with errors from a student: "${userInput}"
-  Please analyze all existing errors, one by one, including punctuation errors, and provide a corresponding rules.
-  Your analysis:
-  `;
-
-  const model = 'text-bison@002';
-  const publisher = 'google';
-  const location = 'us-central1';
-  const endpoint = `projects/${GCProjectId}/locations/${location}/publishers/${publisher}/models/${model}`;
   try {
 
+    if (languageCode !== 'en-US') return { _t: 'unsupported-language-error', message: 'Selected dictation language is not currently supported' };
+
+    const textInput = `
+    Here is the original text: "${originalText}"
+    Here is a dictation result text with errors from a student: "${userInput}"
+    Please analyze all existing errors, one by one, including punctuation errors, and provide a corresponding rules.
+    Your analysis:
+    `;
+    const model = 'text-bison@002';
+    const publisher = 'google';
+    const location = 'us-central1';
+    const endpoint = `projects/${GCProjectId}/locations/${location}/publishers/${publisher}/models/${model}`;
+
     const instanceValue = helpers.toValue({ prompt: textInput });
-    if (!instanceValue) return {_t: 'create-instance-error', message: 'Error getting instance value using helper from @google-cloud/aiplatform'};
+    if (!instanceValue)
+      return { _t: 'create-instance-error', message: 'Error getting instance value using helper from @google-cloud/aiplatform' };
 
     const instances = [instanceValue];
     const parameters = helpers.toValue({
@@ -250,7 +251,7 @@ export async function getAIDictationReview(originalText: string, userInput: stri
       topK: 20,
     });
 
-    const request: AIPlatformProtos.google.cloud.aiplatform.v1.IPredictRequest  = {
+    const request: AIPlatformProtos.google.cloud.aiplatform.v1.IPredictRequest = {
       endpoint,
       instances,
       parameters,
@@ -259,11 +260,12 @@ export async function getAIDictationReview(originalText: string, userInput: stri
     const [response] = await predictionServiceClient.predict(request);
     const predictions = response.predictions;
     const predictionResult = predictions?.[0]?.structValue?.fields?.content?.stringValue;
-    if (!predictionResult) return { _t: 'prediction-result-error', message: 'Can\'t find prediction text content returned from predictionServiceClient at @google-cloud/aiplatform' };
+    if (!predictionResult)
+      return { _t: 'prediction-result-error', message: 'No prediction text content returned from predictionServiceClient at @google-cloud/aiplatform' };
 
     return { _t: 'success', result: predictionResult };
 
-  } catch(error) {
+  } catch (error) {
     return { _t: 'unknown-error', error: error };
   }
 }
