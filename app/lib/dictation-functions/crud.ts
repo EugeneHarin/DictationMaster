@@ -173,9 +173,6 @@ export async function updateDictation(id: string, prevState: State, formData: Fo
     throw new Error('Error Updating dictation', {cause: error});
   }
 
-  console.log(oldDictationSpeed.toString());
-  console.log(speed);
-
   if (oldDictationContent !== content || oldDictationLanguageCode !== language_code || oldDictationSpeed.toString() !== speed) {
     deleteAudioFromGCS(id);
     deleteCachedAudioUrl(id);

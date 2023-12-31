@@ -27,7 +27,6 @@ export default function AIReviewButton({
     const errorMessageForUser = 'Error happened during generation of the AI review';
     setAIReview(<LoadingBox className="w-fit" text="" />);
 
-    console.log('start 1', new Date().toISOString());
     const AIReviewResponse = await getAIDictationReview(originalText, studentInput, languageCode);
     switch (AIReviewResponse._t) {
       case 'success':

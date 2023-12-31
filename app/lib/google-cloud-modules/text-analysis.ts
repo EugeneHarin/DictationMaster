@@ -31,8 +31,6 @@ type getAIDictationReviewResult =
 
 export async function getAIDictationReview(originalText: string, userInput: string, languageCode: Dictation['language_code']): Promise<getAIDictationReviewResult> {
 
-  console.log('start 2', new Date().toISOString());
-
   try {
 
     if (languageCode !== 'en-US') return { _t: 'unsupported-language-error', message: 'Selected dictation language is not currently supported' };
@@ -74,8 +72,6 @@ export async function getAIDictationReview(originalText: string, userInput: stri
     const predictionResult = predictions?.[0]?.structValue?.fields?.content?.stringValue;
     if (!predictionResult)
       return { _t: 'prediction-result-error', message: 'No prediction text content returned from predictionServiceClient at @google-cloud/aiplatform' };
-
-      console.log('END', new Date().toISOString());
 
     return { _t: 'success', result: predictionResult };
 
