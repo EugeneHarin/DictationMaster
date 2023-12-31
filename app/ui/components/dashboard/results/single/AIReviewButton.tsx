@@ -1,7 +1,7 @@
 'use client'
 
 import { Dictation } from "@/app/lib/definitions";
-import { getAIDictationReview } from "@/app/lib/google-cloud-actions";
+import { getAIDictationReview } from "@/app/lib/google-cloud-modules/text-analysis";
 import clsx from "clsx";
 import { useState } from "react";
 import { Button } from "../../Button";
@@ -26,6 +26,8 @@ export default function AIReviewButton({
     setButtonIsDisabled(true);
     const errorMessageForUser = 'Error happened during generation of the AI review';
     setAIReview(<LoadingBox className="w-fit" text="" />);
+
+    console.log('start 1', new Date().toISOString());
     const AIReviewResponse = await getAIDictationReview(originalText, studentInput, languageCode);
     switch (AIReviewResponse._t) {
       case 'success':

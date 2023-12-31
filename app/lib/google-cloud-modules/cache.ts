@@ -1,7 +1,7 @@
 'use server'
 
 import { sql } from "@vercel/postgres";
-import { AudioFileDataField } from "./definitions";
+import { AudioFileDataField } from "../definitions";
 
 import { revalidatePath } from "next/cache";
 

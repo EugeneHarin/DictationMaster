@@ -4,11 +4,9 @@ import z from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { deleteAudioFromGCS } from "../google-cloud-actions";
-import { deleteCachedAudioUrl } from "../cache";
+import { deleteAudioFromGCS } from "@/app/lib/google-cloud-modules/cloud-storage";
+import { deleteCachedAudioUrl } from "@/app/lib/google-cloud-modules/cache";
 import { DICTATION_SPEEDS, Dictation, LANGUAGE_CODES } from "../definitions";
-
-const DICTATION_SPEEDS_STRINGS: readonly [string, ...string[]] = DICTATION_SPEEDS.map(speed => speed.toString()) as [string, ...string[]];
 
 export type State = {
   errors?: {

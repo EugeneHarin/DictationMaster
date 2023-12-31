@@ -4,7 +4,7 @@ import { DictationWithTeacher, LANGUAGE_CODES } from "@/app/lib/definitions";
 import { StartDictation } from "../action-buttons";
 import { UserCircleIcon, DocumentTextIcon, LanguageIcon, ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/outline";
 import { getCurrentUserRole } from "@/app/lib/user-actions";
-import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-actions";
+import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-modules/cloud-storage";
 import LoadingBox from "../../LoadingBox";
 import DictationAudio from "../DictationAudio";
 

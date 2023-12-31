@@ -1,8 +1,8 @@
 import { fetchDictationWithTeacher } from "@/app/lib/dictation-functions/fetch";
-import { notFound } from "next/navigation";
-import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-actions";
+import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-modules/cloud-storage";
 import { WriteDictationForm } from "@/app/ui/components/dashboard/dictations/start/WriteDictationForm";
-import { UserCircleIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
+import { DocumentTextIcon } from "@heroicons/react/24/outline";
+import { notFound } from "next/navigation";
 
 export async function StartDictationPage({ dictationId }: { dictationId: string }) {
   const dictationWithTeacher = await fetchDictationWithTeacher(dictationId);

@@ -1,6 +1,6 @@
 'use client'
 
-import { clearCachesByServerAction } from "@/app/lib/cache";
+import { clearCachesByServerAction } from "@/app/lib/google-cloud-modules/cache";
 import { validateDictation } from "@/app/lib/result-functions/validation";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useRouter } from 'next/navigation';

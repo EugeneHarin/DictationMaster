@@ -1,6 +1,6 @@
 'use server'
 
-import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-actions";
+import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-modules/cloud-storage";
 import { getResultErrorsHtml } from "@/app/lib/utils";
 import { UserCircleIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
