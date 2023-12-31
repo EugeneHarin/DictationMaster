@@ -11,7 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/components/dashboard/Button';
-import { updateDictation } from '@/app/lib/dictation-functions/crud';
+import { State, updateDictation } from '@/app/lib/dictation-functions/crud';
 import { useFormState } from 'react-dom';
 import { useMemo, useState } from "react";
 
@@ -22,9 +22,9 @@ export default function EditDictationForm({
   dictation: Dictation;
   teachers: Pick<User, 'id' | 'name'>[];
 }) {
-  const initialState = { errors: {}, message: null };
+  const initialState: State = { errors: {}, message: '' };
   const updateDictationWithId = updateDictation.bind(null, dictation.id);
-  const [state, dispatch] = useFormState(updateDictationWithId, initialState);
+  const [state, dispatch] = useFormState<State, FormData>(updateDictationWithId, initialState);
   const [speed, setSpeed] = useState(dictation.speed);
   const errorsCount = state.errors ? Object.keys(state.errors).length : 0;
 

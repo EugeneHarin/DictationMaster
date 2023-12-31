@@ -11,7 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/components/dashboard/Button';
-import { createDictation } from '@/app/lib/dictation-functions/crud';
+import { State, createDictation } from '@/app/lib/dictation-functions/crud';
 import { useFormState } from 'react-dom';
 import { useMemo, useState } from "react";
 
@@ -20,8 +20,8 @@ export default function CreateDictationForm({
 }: {
   teachers: Pick<User, 'id' | 'name'>[];
 }) {
-  const initialState = { errors: {}, message: null };
-  const [state, dispatch] = useFormState(createDictation, initialState);
+  const initialState: State = { errors: {}, message: '' };
+  const [state, dispatch] = useFormState<State, FormData>(createDictation, initialState);
   const [speed, setSpeed] = useState(0.7);
   const errorsCount = state.errors ? Object.keys(state.errors).length : 0;
 
