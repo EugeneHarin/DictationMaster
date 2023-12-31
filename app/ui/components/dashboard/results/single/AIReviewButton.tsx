@@ -4,8 +4,8 @@ import { Dictation } from "@/app/lib/definitions";
 import { getAIDictationReview } from "@/app/lib/google-cloud-actions";
 import clsx from "clsx";
 import { useState } from "react";
-import { Button } from "../Button";
-import LoadingBox from "../LoadingBox";
+import { Button } from "../../Button";
+import LoadingBox from "../../LoadingBox";
 
 export default function AIReviewButton({
   originalText,
