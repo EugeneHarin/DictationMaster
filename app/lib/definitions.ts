@@ -68,3 +68,8 @@ export type DictationValidationResult = {
   receivedLetter: string;
   inWord: string;
 }
+
+export type HTTPResponseError = {
+  message: string;
+  cause?: unknown;
+}

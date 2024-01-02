@@ -1,14 +1,27 @@
 import { sql } from "@vercel/postgres";
 import type DiffMatchPatch from 'diff-match-patch';
 import { unstable_noStore as noStore } from "next/cache";
-import { DictationResult } from "../definitions";
+import { DictationResult, HTTPResponseError } from "../definitions";
 import { getCurrentUserData } from "../user-actions";
 
-export async function createDictationResult(dictationId: string, resultErrors: DiffMatchPatch.Diff[], originalText: string) {
-  noStore();
+type UnknownError = HTTPResponseError & { _t: 'unknown-error' };
+type NeonDbError = HTTPResponseError & { _t: 'neon-db-error' };
+type UserDataUndefinedError = HTTPResponseError & { _t: 'user-data-undefined-error'};
+type CreateDictationResultSuccess = { _t: 'success', result: string }
+type UndefinedResultIdError = HTTPResponseError & { _t: 'undefined-result-id-error'};
+type CreateDictationResultResult =
+  | UnknownError
+  | NeonDbError
+  | UserDataUndefinedError
+  | CreateDictationResultSuccess
+  | UndefinedResultIdError
+
+export async function createDictationResult(dictationId: string, resultErrors: DiffMatchPatch.Diff[], originalText: string): Promise<CreateDictationResultResult> {
   try {
+    noStore();
     const date = new Date().toISOString();
     const userData = await getCurrentUserData();
+    if (userData === undefined) return { _t: "user-data-undefined-error", message: 'User data is undefined' };
     const studentId = userData.id;
     const resultErrorsJSON = JSON.stringify(resultErrors);
     const wrongCharsCount = resultErrors.reduce((errCounter, currentElement) => currentElement[0] !== 0 ? errCounter += currentElement[1].length : errCounter, 0);
@@ -23,12 +36,21 @@ export async function createDictationResult(dictationId: string, resultErrors: D
       VALUES (${studentId},${dictationId},${resultErrorsJSON},${errorsCount}, ${wrongCharsCount}, ${correctnessPercentage}, ${date})
       RETURNING id;
     `;
-    const resultId: string = response.rows[0].id;
-    // Will not work if called from API route for some reason
+    // revalidatePath Will not work if called from API route for some reason
     // revalidatePath('/dashboard/results');
-    return resultId;
-  } catch (error: any) {
-    throw new Error('Failed to Create result', {cause: error});
+    const resultId: string | undefined = response?.rows?.[0]?.id;
+    if (resultId === undefined) return { _t: "undefined-result-id-error", message: 'Result ID is undefined after DB INSERT query' };
+    return { _t: "success", result: resultId };
+  } catch (error: unknown) {
+    if (typeof error == 'object' && error !== null && 'name' in error && error.name == 'NeonDbError') {
+      const errorCodeText = 'code' in error && error?.code && typeof error.code == 'string' ? ' Error code: ' + error.code : '';
+      return {
+        _t: "neon-db-error",
+        message: 'Database error creating dictation result',
+        cause: 'message' in error && error?.message && typeof error.message == 'string' ? error.message + errorCodeText : 'Unknown NeonDbError Error' + errorCodeText
+      };
+    }
+    return { _t: "unknown-error", message: 'Unknown error creating dictation result', cause: error };
   }
 }
 

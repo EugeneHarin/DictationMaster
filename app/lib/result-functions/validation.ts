@@ -1,4 +1,5 @@
 import type DiffMatchPatch from 'diff-match-patch';
+import { HTTPResponseError } from '../definitions';
 
 export type State = {
   errorsCount?: number | null;
@@ -18,12 +19,19 @@ export async function validateDictation(dictationId: string, userInput: string, 
         'Content-Type': 'application/json'
       }
     })
-      .then(response => response.json())
-      .then(
-        ({ resultId }: { resultId: string }) => {
-          callback(resultId);
-          return (resultId);
-        })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then((error: HTTPResponseError) => {
+            console.error(error.message, error.cause);
+            throw new Error('Error validating dictation', { cause: error.cause });
+          });
+        }
+        return response.json();
+      })
+      .then(({ result }: { result: string }) => {
+          callback(result);
+          return (result);
+      })
   } catch (error) {
     throw new Error(`Failed to validate dictation: ${error}`);
   }
