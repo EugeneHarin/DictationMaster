@@ -29,7 +29,7 @@ export async function createDictationResult(dictationId: string, resultErrors: D
       errorsArray[i][0] !== 0 && (!errorsArray[i+1] || errorsArray[i+1] && errorsArray[i+1][0] == 0)
       ? errCounter += 1
       : errCounter, 0);
-    const correctnessPercentage = 100 - (wrongCharsCount * 100 / originalText.length);
+      const correctnessPercentage = Math.round(100 - (wrongCharsCount * 100 / originalText.length));
 
     const response = await sql`
       INSERT INTO results(student_id, dictation_id, result_errors, errors_count, wrong_characters_count, correctness_percentage, date)
