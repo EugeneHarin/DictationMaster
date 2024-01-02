@@ -1,6 +1,8 @@
 'use server'
 
-import { PredictionServiceClient, helpers, type protos as AIPlatformProtos } from '@google-cloud/aiplatform';
+import type { protos as AIPlatformProtos } from '@google-cloud/aiplatform';
+import { PredictionServiceClient } from '@google-cloud/aiplatform/build/src/v1/prediction_service_client';
+import { toValue } from '@google-cloud/aiplatform/build/src/helpers.js';
 
 import { Dictation } from "../definitions";
 
@@ -48,12 +50,12 @@ export async function getAIDictationReview(originalText: string, userInput: stri
     const location = 'us-central1';
     const endpoint = `projects/${GCProjectId}/locations/${location}/publishers/${publisher}/models/${model}`;
 
-    const instanceValue = helpers.toValue({ prompt: textInput });
+    const instanceValue = toValue({ prompt: textInput });
     if (!instanceValue)
       return { _t: 'create-instance-error', message: 'Error getting instance value using helper from @google-cloud/aiplatform' };
 
     const instances = [instanceValue];
-    const parameters = helpers.toValue({
+    const parameters = toValue({
       temperature: .3,
       maxOutputTokens: 256,
       topP: .3,

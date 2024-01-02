@@ -1,6 +1,7 @@
 'use server'
 
-import { TextToSpeechLongAudioSynthesizeClient, type protos } from '@google-cloud/text-to-speech';
+import type { protos } from '@google-cloud/text-to-speech';
+import { TextToSpeechLongAudioSynthesizeClient } from '@google-cloud/text-to-speech/build/src/v1/text_to_speech_long_audio_synthesize_client';
 import { convertAndRepeatSentences } from "../utils";
 
 const bucketName = process.env.GCS_BUCKET_NAME;
