@@ -13,8 +13,12 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
+      if (nextUrl.pathname == '/') return true;
+
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
+
+      console.log(nextUrl.pathname);
 
       const role = auth?.user?.role;
       if (!role) return false;
