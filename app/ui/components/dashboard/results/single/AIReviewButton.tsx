@@ -58,7 +58,7 @@ export default function AIReviewButton({
         <Button disabled={buttonIsDisabled} type="button" onClick={generateAIReview} className="w-fit">Generate AI Review</Button>
         {languageCode !== 'en-US' && <span className="opacity-75">Unfortunately, languages other than English are not supported</span> }
       </div>
-      <div className={clsx((!buttonIsDisabled || languageCode !== 'en-US') && 'hidden', 'peer w-full rounded-md border border-gray-200 py-6 px-8 text-sm outline-2 bg-white')}>
+      <div className={clsx((!buttonIsDisabled || languageCode !== 'en-US') && 'hidden', 'peer w-full rounded-md border border-gray-200 py-6 px-8 text-sm outline-2 bg-white [&>pre]:text-wrap')}>
         {AIReview}
       </div>
     </>
