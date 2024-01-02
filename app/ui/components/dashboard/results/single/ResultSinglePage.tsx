@@ -8,6 +8,8 @@ import DictationAudio from "../../dictations/DictationAudio";
 import AIReviewButton from "./AIReviewButton";
 import fetchResultData from "@/app/lib/result-functions/fetch";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import LoadingBox from "../../LoadingBox";
 
 export default async function ResultSinglePage({ resultId }: { resultId: string }) {
   const dictationResultData = await fetchResultData(resultId);
@@ -72,7 +74,9 @@ export default async function ResultSinglePage({ resultId }: { resultId: string 
         <div className="text-sm font-medium">
           Dictation audio
         </div>
-        <DictationAudio url={audioUrl}/>
+        <Suspense key={dictationResultData.dictation_id} fallback={<LoadingBox className="w-fit mt-2" text="" />}>
+          <DictationAudio id={dictationResultData.dictation_id} content={dictationResultData.dictation_content} language_code={dictationResultData.language_code} speed={dictationResultData.speed}/>
+        </Suspense>
       </div>
 
       {/* Dictation Content */}

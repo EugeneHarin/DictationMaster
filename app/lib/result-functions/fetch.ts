@@ -41,6 +41,7 @@ export async function fetchResultPages(query: string) {
   noStore();
   try {
     const currentUserData = await getCurrentUserData();
+    if (currentUserData == undefined) throw new Error('User data is undefined in fetchResultPages');
     let data: QueryResult<QueryResultRow>;
     if (currentUserData.role == 'student') {
       data = await sql`
@@ -97,6 +98,7 @@ export async function fetchFilteredResultsData(
   try {
     const offset = (currentPage - 1) * RESULTS_PER_PAGE;
     const currentUserData = await getCurrentUserData();
+    if (currentUserData == undefined) throw new Error('User data is undefined in fetchResultPages');
     let data: QueryResult<FilteredResult>;
     if (currentUserData.role == 'student') {
 

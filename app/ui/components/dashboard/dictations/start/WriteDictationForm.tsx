@@ -6,14 +6,13 @@ import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from "react";
 import { Button } from "../../Button";
-import DictationAudio from "../DictationAudio";
 
 export function WriteDictationForm({
   dictationId,
-  audioFileUrl
+  children,
 }: {
   dictationId: string;
-  audioFileUrl: string;
+  children: React.ReactNode;
 }){
   const router = useRouter();
   const [submitButtonDisabledState, setSubmitButtonDisabledState] = useState(false);
@@ -39,9 +38,9 @@ export function WriteDictationForm({
   }
 
   function afterValidation (resultId: string) {
-    setLoading(false);
     // clearing client cache for the Results page here because it doesn't work in the API route
     clearCachesByServerAction('/dashboard/results');
+    setLoading(false);
     router.push(`/dashboard/results/${resultId}`);
   }
 
@@ -52,7 +51,7 @@ export function WriteDictationForm({
         <div className="mb-2 block text-sm font-medium">
           Dictation audio
         </div>
-        <DictationAudio url={audioFileUrl} />
+        {children}
       </div>
 
       {/* Field to write dictation */}

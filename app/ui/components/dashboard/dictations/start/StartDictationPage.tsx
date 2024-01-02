@@ -1,15 +1,14 @@
 import { fetchDictationWithTeacher } from "@/app/lib/dictation-functions/fetch";
-import { retrieveAudioFileUrl } from "@/app/lib/google-cloud-modules/cloud-storage";
 import { WriteDictationForm } from "@/app/ui/components/dashboard/dictations/start/WriteDictationForm";
 import { DocumentTextIcon } from "@heroicons/react/24/outline";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import LoadingBox from "../../LoadingBox";
+import DictationAudio from "../DictationAudio";
 
 export async function StartDictationPage({ dictationId }: { dictationId: string }) {
   const dictationWithTeacher = await fetchDictationWithTeacher(dictationId);
   if (!dictationWithTeacher) notFound();
-  const audioFileUrl = await retrieveAudioFileUrl(dictationWithTeacher.id, dictationWithTeacher.content, dictationWithTeacher.language_code, dictationWithTeacher.speed);
-
-  if (!audioFileUrl) notFound();
 
   return(
     <div className="rounded-md bg-gray-50 p-4 md:p-6 flex flex-col gap-6">
@@ -29,7 +28,11 @@ export async function StartDictationPage({ dictationId }: { dictationId: string 
         </div>
       </div>
 
-      <WriteDictationForm dictationId={dictationWithTeacher.id} audioFileUrl={audioFileUrl} />
+      <WriteDictationForm dictationId={dictationWithTeacher.id}>
+        <Suspense key={dictationId} fallback={<LoadingBox className="w-fit mt-2" text="" />}>
+          <DictationAudio id={dictationWithTeacher.id} content={dictationWithTeacher.content} language_code={dictationWithTeacher.language_code} speed={dictationWithTeacher.speed} />
+        </Suspense>
+      </WriteDictationForm>
 
     </div>
   );

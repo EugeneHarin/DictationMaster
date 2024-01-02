@@ -1,4 +1,4 @@
-import { QueryResult, QueryResultRow, sql } from '@vercel/postgres';
+import { type QueryResult, type QueryResultRow, sql } from '@vercel/postgres';
 import { unstable_noStore as noStore } from 'next/cache';
 import {
   Dictation,

@@ -45,7 +45,7 @@ export async function getCurrentUserRole() {
 
 export async function getCurrentUserData() {
   const session = await auth();
-  const userData: User = session?.user;
+  const userData: User | undefined = session?.user;
   return userData;
 }
 
