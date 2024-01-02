@@ -1,11 +1,13 @@
 import { BookOpenIcon } from '@heroicons/react/24/outline';
 import { lusitana } from '@/app/ui/fonts';
+import Link from 'next/link';
 
 export default function DictationmasterLogo() {
   return (
-    <div
-      className={`${lusitana.className} flex flex-row items-start leading-none text-white`}
-    >
+    <Link
+        className={`${lusitana.className} flex flex-row items-start leading-none text-white w-fit`}
+        href="/"
+      >
       <div className="ml-1 flex flex-col justify-start items-end text-2xl md:text-3xl">
         <div className="leading-7 md:leading-9">Dictation</div>
         <div className="flex flex-row gap-1">
@@ -13,6 +15,6 @@ export default function DictationmasterLogo() {
           <div className="leading-7 md:leading-9">Master</div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
