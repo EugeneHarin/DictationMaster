@@ -41,8 +41,7 @@ export async function getAIDictationReview(originalText: string, userInput: stri
     const textInput = `
     Here is the original text: "${originalText}"
     Here is a dictation result text with errors from a student: "${userInput}"
-    Please analyze all existing errors, one by one, including punctuation errors, and provide a corresponding rules.
-    Your analysis:
+    Please analyze errors and provide a short review.
     `;
     const model = 'text-bison@002';
     const publisher = 'google';
@@ -56,9 +55,9 @@ export async function getAIDictationReview(originalText: string, userInput: stri
     const instances = [instanceValue];
     const parameters = helpers.toValue({
       temperature: .3,
-      maxOutputTokens: 512,
+      maxOutputTokens: 256,
       topP: .3,
-      topK: 20,
+      topK: 40,
     });
 
     const request: AIPlatformProtos.google.cloud.aiplatform.v1.IPredictRequest = {
