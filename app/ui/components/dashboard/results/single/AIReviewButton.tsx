@@ -3,9 +3,10 @@
 import { Dictation } from "@/app/lib/definitions";
 import { getAIDictationReview } from "@/app/lib/google-cloud-modules/text-analysis";
 import clsx from "clsx";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "../../Button";
 import LoadingBox from "../../LoadingBox";
+import { time } from 'console';
 
 export default function AIReviewButton({
   originalText,
@@ -20,35 +21,51 @@ export default function AIReviewButton({
   const [AIReview, setAIReview] = useState(<></>);
   const [buttonIsDisabled, setButtonIsDisabled] = useState(languageCode !== 'en-US');
 
-  const generateAIReview = async () => {
+  async function generateAIReview() {
     // Run only once
     if (buttonIsDisabled) return;
     setButtonIsDisabled(true);
     const errorMessageForUser = 'Error happened during generation of the AI review';
     setAIReview(<LoadingBox className="w-fit" text="" />);
 
-    const AIReviewResponse = await getAIDictationReview(originalText, studentInput, languageCode);
-    switch (AIReviewResponse._t) {
-      case 'success':
-        setAIReview(<pre>{AIReviewResponse.result}</pre>);
-        break;
+    try {
+      const AIReviewResponse = await Promise.race([
+        getAIDictationReview(originalText, studentInput, languageCode),
+        timeout(9000),
+      ])
 
-      case 'create-instance-error':
-      case 'prediction-result-error':
-      case 'project-id-not-found':
-        console.error(AIReviewResponse.message);
+      if (AIReviewResponse?._t == undefined) {
+        console.error('Error: AIReviewResponse doesn\'t have property _t');
         setAIReview(<pre>{errorMessageForUser}</pre>);
-        break;
+        return;
+      }
 
-      case 'unknown-error':
-        console.error(AIReviewResponse.error);
-        setAIReview(<pre>{errorMessageForUser}</pre>);
-        break;
+      switch (AIReviewResponse._t) {
+        case 'success':
+          setAIReview(<pre>{AIReviewResponse.result}</pre>);
+          break;
 
-      case 'unsupported-language-error':
-        console.error(AIReviewResponse.message);
-        setAIReview(<pre>{AIReviewResponse.message}</pre>);
-        break;
+        case 'create-instance-error':
+        case 'prediction-result-error':
+        case 'project-id-not-found':
+          console.error(AIReviewResponse.message);
+          setAIReview(<pre>{errorMessageForUser}</pre>);
+          break;
+
+        case 'unknown-error':
+          console.error(AIReviewResponse.error);
+          setAIReview(<pre>{errorMessageForUser}</pre>);
+          break;
+
+        case 'unsupported-language-error':
+          console.error(AIReviewResponse.message);
+          setAIReview(<pre>{AIReviewResponse.message}</pre>);
+          break;
+      }
+    } catch (error: unknown) {
+      const message = (error instanceof Error) ? error.message : 'Unhandled error generating AI review';
+      console.error(message);
+      setAIReview(<pre>{errorMessageForUser}</pre>);
     }
   }
 
@@ -63,4 +80,12 @@ export default function AIReviewButton({
       </div>
     </>
   )
+}
+
+function timeout(ms: number): Promise<never> {
+  return new Promise((resolve, reject) => {
+      setTimeout(() => {
+          reject(new Error('Generation of the AI review timed out'));
+      }, ms);
+  });
 }

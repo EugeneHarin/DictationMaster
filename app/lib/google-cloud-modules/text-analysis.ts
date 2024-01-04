@@ -35,10 +35,12 @@ export async function getAIDictationReview(originalText: string, userInput: stri
 
   try {
 
-    if (languageCode !== 'en-US') return { _t: 'unsupported-language-error', message: 'Selected dictation language is not currently supported' };
+    if (languageCode !== 'en-US')
+      return { _t: 'unsupported-language-error', message: 'Selected dictation language is not currently supported' };
 
     const GCProjectId = process.env.GC_PROJECT_ID;
-    if (GCProjectId == undefined) return { _t: "project-id-not-found", message: 'GC_PROJECT_ID wan not found in the environment variables' };
+    if (GCProjectId == undefined)
+      return { _t: "project-id-not-found", message: 'GC_PROJECT_ID wan not found in the environment variables' };
 
     const textInput = `
     Here is the original text: "${originalText}"
