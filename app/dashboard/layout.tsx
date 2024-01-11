@@ -1,4 +1,3 @@
-import { SpeedInsights } from "@vercel/speed-insights/next"
 import SideNav from '@/app/ui/components/dashboard/SideNav';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
